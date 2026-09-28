@@ -394,7 +394,7 @@ docs/API.md
 | Role                           | Member                                                                      |
 | ------------------------------ | --------------------------------------------------------------------------- |
 | **Team Leader / Focal Person** | Mohammed AlBalushi                                                          |
-| **Team Members**               | Taqwa AlHinai, Abdulaziz Mohammed,** Intisar Said,** Abdulrhman Al-Gheilani |
+| **Team Members**               | Taqwa AlHinai, Abdulaziz Mohammed,Intisar Said, Abdulrhman Al-Gheilani      |
 | **Supervisor**                 | Fatma AlMamari & Is'haq AlBalushi                                           |
 
 ---
