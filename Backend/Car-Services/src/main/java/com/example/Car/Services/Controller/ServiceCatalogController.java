@@ -1,11 +1,12 @@
 package com.example.Car.Services.Controller;
 
-import com.example.Car.Services.DTO.ServiceOptionRequest;
-import com.example.Car.Services.DTO.ServiceOptionResponse;
-import com.example.Car.Services.DTO.ServiceRequest;
-import com.example.Car.Services.DTO.ServiceResponse;
+import com.example.Car.Services.DTO.request.ServiceOptionRequest;
+import com.example.Car.Services.DTO.response.ServiceOptionResponse;
+import com.example.Car.Services.DTO.request.ServiceRequest;
+import com.example.Car.Services.DTO.response.ServiceResponse;
 import com.example.Car.Services.service.ServiceCatalogService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/services")
+@PreAuthorize("hasRole('ADMIN')")
 public class ServiceCatalogController {
 
     private final ServiceCatalogService catalogService;

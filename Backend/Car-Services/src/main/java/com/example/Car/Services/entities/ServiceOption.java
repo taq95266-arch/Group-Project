@@ -24,8 +24,8 @@ public class ServiceOption {
     private String size;
     private String brand;
 
-    @Column(nullable = false, precision = 10, scale = 3)
-    private BigDecimal price;
+//    @Column(nullable = false, precision = 10, scale = 3)
+//    private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id", nullable = false)
@@ -65,14 +65,14 @@ public class ServiceOption {
     public void setBrand(String brand) {
         this.brand = brand;
     }
+//
+//    public BigDecimal getPrice() {
+//        return price;
+//    }
 
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
+//    public void setPrice(BigDecimal price) {
+//        this.price = price;
+//    }
 
     public Service getService() {
         return service;
