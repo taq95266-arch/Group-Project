@@ -36,6 +36,10 @@ public class User {
     @Column(nullable = false)
     private String fullName;
 
+
+    @Column(nullable = true)
+    private int has_used_free_trial;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;
