@@ -2,6 +2,7 @@ package com.example.Car.Services.entities;
 
 
 import com.example.Car.Services.enums.Role;
+import com.example.Car.Services.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,6 +44,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserStatus status = UserStatus.PENDING_APPROVAL;
 
     @Column(nullable = false)
     private Boolean active = true;

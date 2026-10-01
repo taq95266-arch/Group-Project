@@ -27,4 +27,6 @@ public interface AuthServiceInterface {
     MessageResponse changePassword(String email, String currentPassword, String newPassword);
 
     LoginResponse currentUser(String email);
+
+
 }
