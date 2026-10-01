@@ -1,9 +1,9 @@
 package com.example.Car.Services.service;
 
-import com.example.Car.Services.DTO.ServiceOptionRequest;
-import com.example.Car.Services.DTO.ServiceOptionResponse;
-import com.example.Car.Services.DTO.ServiceRequest;
-import com.example.Car.Services.DTO.ServiceResponse;
+import com.example.Car.Services.DTO.request.ServiceOptionRequest;
+import com.example.Car.Services.DTO.response.ServiceOptionResponse;
+import com.example.Car.Services.DTO.request.ServiceRequest;
+import com.example.Car.Services.DTO.response.ServiceResponse;
 import com.example.Car.Services.Repository.ServiceOptionRepository;
 import com.example.Car.Services.Repository.ServiceRepository;
 import com.example.Car.Services.entities.Service;
@@ -11,7 +11,6 @@ import com.example.Car.Services.entities.ServiceOption;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @org.springframework.stereotype.Service
@@ -83,7 +82,7 @@ public class ServiceCatalogService {
         option.setType(request.type().trim());
         option.setSize(optionalText(request.size()));
         option.setBrand(optionalText(request.brand()));
-        option.setPrice(request.price());
+//        option.setPrice(request.price());
 
         return toOptionResponse(optionRepository.save(option));
     }
@@ -115,7 +114,7 @@ public class ServiceCatalogService {
         option.setType(request.type().trim());
         option.setSize(optionalText(request.size()));
         option.setBrand(optionalText(request.brand()));
-        option.setPrice(request.price());
+//        option.setPrice(request.price());
 
         return toOptionResponse(optionRepository.save(option));
     }
@@ -152,15 +151,15 @@ public class ServiceCatalogService {
 
     private void validateOption(ServiceOptionRequest request) {
         requiredText(request.type(), "Option type");
+//
+//        if (request.price() == null
+//                || request.price().compareTo(BigDecimal.ZERO) < 0
+//                || request.price().scale() > 3) {
+//            throw new ResponseStatusException(
+//                    HttpStatus.BAD_REQUEST,
+//                    "Price must be zero or greater with at most 3 decimals"
+//            );
 
-        if (request.price() == null
-                || request.price().compareTo(BigDecimal.ZERO) < 0
-                || request.price().scale() > 3) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Price must be zero or greater with at most 3 decimals"
-            );
-        }
     }
 
     private String requiredText(String value, String fieldName) {
@@ -193,8 +192,8 @@ public class ServiceCatalogService {
                 option.getService().getServiceId(),
                 option.getType(),
                 option.getSize(),
-                option.getBrand(),
-                option.getPrice()
+                option.getBrand()
+//                option.getPrice()
         );
     }
 }
