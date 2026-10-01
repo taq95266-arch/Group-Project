@@ -5,4 +5,3 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface GrageRepository extends JpaRepository<Grage, Long> {
 }
-

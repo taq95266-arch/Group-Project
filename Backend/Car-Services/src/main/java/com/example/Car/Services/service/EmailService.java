@@ -96,4 +96,37 @@ public class EmailService implements EmailServiceInterface {
               throw  new RuntimeException("Failed to send password reset email");
           }
     }
+
+    @Override
+    public void sendWelcomeEmail(String toEmail, String fullName) {
+
+        try{
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("Car Service -  Welcome");
+
+            String emailBody =
+                    "Welcome to Car Services! 🚗\n\n"
+                            + "Thank you for registering with us.\n\n"
+                            + "We are happy to have you with us!\n"
+                    + "Welcome to Car Services! \uD83D\uDE97✨\n" +
+                            "\n" +
+                            "We’re delighted to have you with us. Your registration request has been successfully received and is currently under review.\n" +
+                            "\n" +
+                            "We will get back to you with an update as soon as possible.\n" +
+                            "\n" +
+                            "Thank you for choosing Car Services. We look forward to having you with us!\n"
+                    + fullName + "";
+
+
+            message.setText(emailBody);
+            mailSender.send(message);
+            logger.info("Welcome email sent to {} ", toEmail);
+
+        }catch (Exception ex){
+            logger.error("Failed to send Welcome email to {} : {}", toEmail,ex.getMessage(),ex);
+            throw  new EmailNotVerifiedException("Failed to send Welcome Email");
+        }
+    }
 }

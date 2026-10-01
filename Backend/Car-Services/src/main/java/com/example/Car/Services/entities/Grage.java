@@ -1,24 +1,27 @@
 package com.example.Car.Services.entities;
 
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.Car.Services.enums.GarageStatus;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
-@Getter
+import java.math.BigDecimal;
+
 @Entity
-public class Grage{
+@Table(name = "garage")
+@Getter
+@Setter
+public class Grage {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
 
-        private Long ownerID;
-        private String name;
-        private String location;
-        private String phoneNumber;
-        private String Commerical_Registration;
+        private Long garageId;
+        private Long ownerId;
+        private String garageName;
+        private String address;
+        private BigDecimal latitude;
+        private BigDecimal longitude;
+        private String phone;
+        private GarageStatus status;
 }

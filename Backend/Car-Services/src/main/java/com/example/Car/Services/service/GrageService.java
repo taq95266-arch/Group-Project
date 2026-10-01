@@ -1,8 +1,7 @@
+package com.example.Car.Services.service;
 
-package com.example.Car.Services.Services;
-
-import com.example.Car.Services.DTO.GrageRequest;
 import com.example.Car.Services.DTO.GrageResponse;
+import com.example.Car.Services.DTO.request.GrageRequest;
 import com.example.Car.Services.Repository.GrageRepository;
 import com.example.Car.Services.entities.Grage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +10,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class GrageServices {
+public class GrageService {
 
-    GrageRepository grageRepository;
+    private final GrageRepository grageRepository;
 
     @Autowired
-    public GrageServices(GrageRepository grageRepository) {
+    public GrageService(GrageRepository grageRepository) {
         this.grageRepository = grageRepository;
     }
 
@@ -24,14 +23,15 @@ public class GrageServices {
 
         Grage grage = new Grage();
 
-        grage.setName(request.getName());
-        grage.setLocation(request.getLocation());
-        grage.setPhoneNumber(request.getPhoneNumber());
-        grage.setCommerical_Registration(
-                request.getCommerical_Registration()
-        );
+        grage.setOwnerId(request.getOwnerId());
+        grage.setGarageName(request.getGarageName());
+        grage.setAddress(request.getAddress());
+        grage.setLatitude(request.getLatitude());
+        grage.setLongitude(request.getLongitude());
+        grage.setPhone(request.getPhone());
+        grage.setStatus(request.getStatus());
 
-        return grageRepository.save(grage).getOwnerID();
+        return grageRepository.save(grage).getGarageId();
     }
 
     public List<GrageResponse> getAllGrages() {
@@ -60,12 +60,13 @@ public class GrageServices {
             return new GrageResponse();
         }
 
-        grage.setName(request.getName());
-        grage.setLocation(request.getLocation());
-        grage.setPhoneNumber(request.getPhoneNumber());
-        grage.setCommerical_Registration(
-                request.getCommerical_Registration()
-        );
+        grage.setOwnerId(request.getOwnerId());
+        grage.setGarageName(request.getGarageName());
+        grage.setAddress(request.getAddress());
+        grage.setLatitude(request.getLatitude());
+        grage.setLongitude(request.getLongitude());
+        grage.setPhone(request.getPhone());
+        grage.setStatus(request.getStatus());
 
         Grage updatedGrage = grageRepository.save(grage);
 
@@ -85,4 +86,6 @@ public class GrageServices {
         return true;
     }
 }
+
+
 
