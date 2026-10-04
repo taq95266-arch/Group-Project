@@ -1,4 +1,4 @@
-package com.example.Car.Services.Interface;
+package com.example.Car.Services.Interface.Account;
 
 
 import com.example.Car.Services.DTO.request.UserRequest;

@@ -1,11 +1,11 @@
-package com.example.Car.Services.service;
+package com.example.Car.Services.service.GarageOwner;
 
 
 import com.example.Car.Services.DTO.request.DecisionRequestDTO;
 import com.example.Car.Services.DTO.request.OwnerRegistrationRequest;
 import com.example.Car.Services.DTO.response.MessageResponse;
 import com.example.Car.Services.DTO.response.RegistrationDocumentResponse;
-import com.example.Car.Services.Interface.RegistrationDocumentInterface;
+import com.example.Car.Services.Interface.GarageOwner.RegistrationDocumentInterface;
 import com.example.Car.Services.Repository.RegistrationDocumentRepository;
 import com.example.Car.Services.Repository.UserRepository;
 import com.example.Car.Services.entities.RegistrationDocument;
@@ -14,6 +14,8 @@ import com.example.Car.Services.enums.RequestStatus;
 import com.example.Car.Services.enums.Role;
 import com.example.Car.Services.expection.BadRequestException;
 import com.example.Car.Services.expection.ConflictException;
+import com.example.Car.Services.service.common.EmailService;
+import com.example.Car.Services.service.common.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,9 +36,6 @@ public class RegistrationDocumentService  implements RegistrationDocumentInterfa
     private final PasswordEncoder passwordEncoder;
     private final FileStorageService fileStorageService;
     private final EmailService emailService;
-
-
-
 
 
     @Transactional
@@ -70,6 +69,7 @@ public class RegistrationDocumentService  implements RegistrationDocumentInterfa
         String storedFileName = fileStorageService.storeFile(request.getCertificateFile());
         RegistrationDocument document = new RegistrationDocument();
         document.setOwner(savedOwner);
+        document.setGarageName(request.getGarageName());
         document.setCommercialRegisterNumber(request.getCommercialRegisterNumber());
         document.setRegisterCertificateFile(storedFileName);
         document.setGovernorate(request.getGovernorate());
@@ -92,78 +92,4 @@ public class RegistrationDocumentService  implements RegistrationDocumentInterfa
     }
 
 
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<RegistrationDocumentResponse> getAllRegistrationDocuments() {
-        log.info("Fetching all registration documents fo admin view");
-        List<RegistrationDocument> documents = documentRepository.findAll();
-        log.info("Successfully fetched {} registration documents", documents.size());
-        return RegistrationDocumentResponse.fromEntity(documents);
-
-
-    }
-
-
-
-
-    @Transactional(readOnly = true)
-    @Override
-    public RegistrationDocumentResponse getRegistrationDocumentsById(Long id) {
-        RegistrationDocument registrationDocument = null;
-        try {
-            registrationDocument = documentRepository
-                    .findById(id).orElseThrow(() ->{
-                        log.warn("Document NotFound: Document not found with ID: {}", id);
-                        return new BadRequestException("Document not found with ID: " + id);
-                    });
-        } catch (BadRequestException e) {
-            throw new RuntimeException(e);
-        }
-
-        log.info("Successfully retrieved registration document with ID: {}", id);
-        return RegistrationDocumentResponse.fromEntity(registrationDocument);
-    }
-
-
-    @Transactional
-    @Override
-    public MessageResponse makeDecision(Long id, DecisionRequestDTO requestDTO) {
-
-        RegistrationDocument registrationDocument = documentRepository
-                .findById(id).orElseThrow(() ->{
-                    log.warn("Document NotFound: Document not found with ID: {}", id);
-                    return new BadRequestException("Document not found with ID: " + id);
-                });
-
-        User owner = registrationDocument.getOwner();
-        String verificationToken = UUID.randomUUID().toString();
-
-        registrationDocument.setStatus(requestDTO.getStatus());
-        if("REJECTED".equalsIgnoreCase(requestDTO.getStatus().toString())){
-            registrationDocument.setRejectionReason(requestDTO.getReason());
-        } else if ("APPROVED".equalsIgnoreCase(requestDTO.getStatus().toString())) {
-            registrationDocument.setRejectionReason(null);
-            owner.setActive(true);
-            owner.setVerificationToken(verificationToken);
-            owner.setVerificationTokenExpiry(Instant.now().plusSeconds(84600));
-        }
-
-        documentRepository.save(registrationDocument);
-        userRepository.save(owner);
-
-       if(owner.getEmail() != null){
-           try {
-               if ("APPROVED".equalsIgnoreCase(requestDTO.getStatus().toString())) {
-                   emailService.sendApprovalEmail(owner.getEmail(), owner.getFullName(),owner.getVerificationToken());
-               } else if ("REJECTED".equalsIgnoreCase(requestDTO.getStatus().toString())) {
-                   emailService.sendRejectionEmail(owner.getEmail(), owner.getFullName(), requestDTO.getReason());
-               }
-           }catch(Exception ex){
-               log.error("Failed to send status update email to {}: {}", owner.getEmail(), ex.getMessage(), ex);
-           }
-       }
-        return new MessageResponse("Decision saved and processed successfully for document ID: " + id);
-
-    }
 }

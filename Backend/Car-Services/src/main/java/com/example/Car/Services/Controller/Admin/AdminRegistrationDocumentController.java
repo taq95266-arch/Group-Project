@@ -4,7 +4,8 @@ package com.example.Car.Services.Controller.Admin;
 import com.example.Car.Services.DTO.request.DecisionRequestDTO;
 import com.example.Car.Services.DTO.response.MessageResponse;
 import com.example.Car.Services.DTO.response.RegistrationDocumentResponse;
-import com.example.Car.Services.Interface.RegistrationDocumentInterface;
+import com.example.Car.Services.Interface.Admin.AdminRegistrationDocumentInterface;
+import com.example.Car.Services.Interface.GarageOwner.RegistrationDocumentInterface;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ import java.util.List;
 public class AdminRegistrationDocumentController {
 
 
-   private final  RegistrationDocumentInterface registrationDocumentService;
+   private final AdminRegistrationDocumentInterface registrationDocumentService;
 
 
     @GetMapping

@@ -1,4 +1,4 @@
-package com.example.Car.Services.Interface;
+package com.example.Car.Services.Interface.Commn;
 
 public interface EmailServiceInterface {
 

@@ -1,9 +1,9 @@
-package com.example.Car.Services.service;
+package com.example.Car.Services.service.Technician;
 
 
 import com.example.Car.Services.DTO.TechnicianAssignmentDTO;
 import com.example.Car.Services.DTO.response.MessageResponse;
-import com.example.Car.Services.Interface.TechnicianAssignmentServiceInterface;
+import com.example.Car.Services.Interface.Technician.TechnicianAssignmentServiceInterface;
 import com.example.Car.Services.Repository.TechnicianAssignmentRepository;
 import com.example.Car.Services.constant.GeoConstants;
 import com.example.Car.Services.entities.TechnicianAssignment;

@@ -3,9 +3,8 @@ package com.example.Car.Services.Controller;
 
 import com.example.Car.Services.DTO.TechnicianAssignmentDTO;
 import com.example.Car.Services.DTO.response.MessageResponse;
-import com.example.Car.Services.Interface.TechnicianAssignmentServiceInterface;
+import com.example.Car.Services.Interface.Technician.TechnicianAssignmentServiceInterface;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

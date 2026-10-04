@@ -4,7 +4,7 @@ import com.example.Car.Services.DTO.request.ServiceOptionRequest;
 import com.example.Car.Services.DTO.response.ServiceOptionResponse;
 import com.example.Car.Services.DTO.request.ServiceRequest;
 import com.example.Car.Services.DTO.response.ServiceResponse;
-import com.example.Car.Services.service.ServiceCatalogService;
+import com.example.Car.Services.service.Service.ServiceCatalogService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
