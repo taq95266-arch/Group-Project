@@ -7,5 +7,11 @@ public interface EmailServiceInterface {
 
     void sendPasswordRestEmail(String toEmail, String token );
 
+    void sendWelcomeEmail(String toEmail, String fullName);
+
+    void sendApprovalEmail(String toEmail, String fullName,String token);
+
+    void sendRejectionEmail(String toEmail, String fullName, String reason);
+
 
 }

@@ -36,12 +36,11 @@ import static org.mockito.Mockito.*;
         @Test
         void login_shouldReturnLoginResponse_whenCredentialsAreValid() {
 
-            // Arrange
             User user = new User();
             user.setEmail("test@gmail.com");
             user.setPassword("encodedPassword");
             user.setFullName("Test User");
-            user.setRole(Role.USER);
+            user.setRole(Role.GARAGE_OWNER);
             user.setActive(true);
             user.setEmailVerified(true);
 
@@ -54,11 +53,9 @@ import static org.mockito.Mockito.*;
             when(jwtUtil.generateToken("test@gmail.com", "USER"))
                     .thenReturn("fake-jwt-token");
 
-            // Act
             LoginResponse response =
                     authService.login("test@gmail.com", "123456");
 
-            // Assert
             assertNotNull(response);
             assertEquals("fake-jwt-token", response.getToken());
             assertEquals("test@gmail.com", response.getEmail());

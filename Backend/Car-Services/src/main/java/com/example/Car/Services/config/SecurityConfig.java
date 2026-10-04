@@ -32,7 +32,11 @@ public class SecurityConfig {
             "/api/auth/verify-email",
             "/api/auth/resend-verification",
             "/api/auth/forget-password",
-            "/api/auth/reset-password"
+            "/api/auth/reset-password",
+            "/api/assignments/{assignmentId}/location",
+            "/ws-tracking/**",
+            "/api/RegistrationDocument/register-owner",
+
 
 
     };
@@ -46,6 +50,11 @@ public class SecurityConfig {
 
 
     @Bean
+
+
+
+
+
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> {})
