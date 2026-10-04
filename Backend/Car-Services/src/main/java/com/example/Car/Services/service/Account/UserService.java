@@ -1,8 +1,8 @@
-package com.example.Car.Services.service;
+package com.example.Car.Services.service.Account;
 
 import com.example.Car.Services.DTO.request.UserRequest;
 import com.example.Car.Services.DTO.response.MessageResponse;
-import com.example.Car.Services.Interface.UserInterface;
+import com.example.Car.Services.Interface.Account.UserInterface;
 import com.example.Car.Services.Repository.UserRepository;
 import com.example.Car.Services.Utils.ServiceUtils;
 import com.example.Car.Services.entities.User;
@@ -10,6 +10,7 @@ import com.example.Car.Services.enums.Role;
 import com.example.Car.Services.expection.BadRequestException;
 import com.example.Car.Services.expection.ConflictException;
 import com.example.Car.Services.expection.EmailAlreadyExistsException;
+import com.example.Car.Services.service.common.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

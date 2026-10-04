@@ -9,6 +9,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
@@ -20,6 +22,9 @@ public class RegistrationDocument {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "doc_id")
     private Long docId;
+
+    @Column(name = "garage_name", nullable = false)
+    private String garageName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
@@ -42,10 +47,10 @@ public class RegistrationDocument {
     private String state;
 
     @Column(name = "latitude")
-    private Double latitude;
+    private BigDecimal latitude;
 
     @Column(name = "longitude")
-    private Double longitude;
+    private BigDecimal longitude;
 
     @Column(name = "map_address")
     private String mapAddress;

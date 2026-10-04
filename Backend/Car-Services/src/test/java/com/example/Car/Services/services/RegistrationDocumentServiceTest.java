@@ -1,14 +1,18 @@
 package com.example.Car.Services.services;
 
 
+import com.example.Car.Services.DTO.request.DecisionRequestDTO;
 import com.example.Car.Services.DTO.request.OwnerRegistrationRequest;
+import com.example.Car.Services.DTO.response.MessageResponse;
 import com.example.Car.Services.Repository.RegistrationDocumentRepository;
 import com.example.Car.Services.Repository.UserRepository;
 import com.example.Car.Services.entities.RegistrationDocument;
+import com.example.Car.Services.entities.User;
+import com.example.Car.Services.enums.RequestStatus;
 import com.example.Car.Services.expection.BadRequestException;
-import com.example.Car.Services.service.EmailService;
-import com.example.Car.Services.service.FileStorageService;
-import com.example.Car.Services.service.RegistrationDocumentService;
+import com.example.Car.Services.service.common.EmailService;
+import com.example.Car.Services.service.common.FileStorageService;
+import com.example.Car.Services.service.GarageOwner.RegistrationDocumentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +21,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -101,6 +107,7 @@ public class RegistrationDocumentServiceTest {
         verify(documentRepository, never()).save(any());
         verify(emailService, never()).sendWelcomeEmail(anyString(), anyString());
     }
+
 
 
 }

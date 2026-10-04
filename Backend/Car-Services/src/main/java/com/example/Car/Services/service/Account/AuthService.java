@@ -1,6 +1,6 @@
-package com.example.Car.Services.service;
+package com.example.Car.Services.service.Account;
 
-import com.example.Car.Services.Interface.AuthServiceInterface;
+import com.example.Car.Services.Interface.Account.AuthServiceInterface;
 import com.example.Car.Services.DTO.request.UserRequest;
 import com.example.Car.Services.DTO.response.EmailValidationResponse;
 import com.example.Car.Services.DTO.response.LoginResponse;
@@ -11,9 +11,9 @@ import com.example.Car.Services.expection.*;
 import com.example.Car.Services.Repository.UserRepository;
 import com.example.Car.Services.Security.JwtUtil;
 import com.example.Car.Services.Utils.ServiceUtils;
+import com.example.Car.Services.service.common.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;

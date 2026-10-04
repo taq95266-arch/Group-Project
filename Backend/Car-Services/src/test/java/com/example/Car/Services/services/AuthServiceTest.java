@@ -5,7 +5,7 @@ import com.example.Car.Services.Security.JwtUtil;
 import com.example.Car.Services.entities.User;
 import com.example.Car.Services.enums.Role;
 import com.example.Car.Services.DTO.response.LoginResponse;
-import com.example.Car.Services.service.AuthService;
+import com.example.Car.Services.service.Account.AuthService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

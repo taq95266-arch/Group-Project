@@ -1,14 +1,13 @@
 package com.example.Car.Services.Controller.Account;
 
 
-import com.example.Car.Services.Interface.AuthServiceInterface;
+import com.example.Car.Services.Interface.Account.AuthServiceInterface;
 import com.example.Car.Services.DTO.request.*;
 import com.example.Car.Services.DTO.response.EmailValidationResponse;
 import com.example.Car.Services.DTO.response.LoginResponse;
 import com.example.Car.Services.DTO.response.MessageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
+@CrossOrigin("*")
 public class AuthController {
 
 

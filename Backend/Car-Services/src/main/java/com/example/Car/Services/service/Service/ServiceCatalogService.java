@@ -1,4 +1,4 @@
-package com.example.Car.Services.service;
+package com.example.Car.Services.service.Service;
 
 import com.example.Car.Services.DTO.request.ServiceOptionRequest;
 import com.example.Car.Services.DTO.response.ServiceOptionResponse;

@@ -26,20 +26,26 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINT = {
 
-            "/api/auth/login",
-            "/api/auth/signup",
-            "/api/auth/validate-email",
-            "/api/auth/verify-email",
-            "/api/auth/resend-verification",
-            "/api/auth/forget-password",
-            "/api/auth/reset-password",
-            "/api/assignments/{assignmentId}/location",
+            "/api/auth/**",
+            "/api/owner/registration/**",
             "/ws-tracking/**",
-            "/api/RegistrationDocument/register-owner",
-
-
+            "/api/customer/**",
 
     };
+
+    private static final  String[] ADMIN_ENDPOINTS = {
+            "/api/admin/**",
+            "/api/admin/registration-documents",
+    };
+
+    private static final String[] OWNER_ENDPOINTS = {
+            "/api/owner/**"
+    };
+
+    private static final String[] TECHNICIAN_ENDPOINTS = {
+            "/api/techician/**"
+    };
+
 
 
 
@@ -48,17 +54,18 @@ public class SecurityConfig {
         return  new BCryptPasswordEncoder();
     }
 
-
     @Bean
-
-
-
-
-
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> {})
-                .authorizeHttpRequests(auth -> auth.requestMatchers(PUBLIC_ENDPOINT).permitAll().anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(PUBLIC_ENDPOINT).permitAll()
+                        .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")
+                        .requestMatchers(OWNER_ENDPOINTS).hasRole("GARAGE_OWNER")
+                        .requestMatchers(TECHNICIAN_ENDPOINTS).hasRole("TECHNICIAN")
+
+
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class );
 

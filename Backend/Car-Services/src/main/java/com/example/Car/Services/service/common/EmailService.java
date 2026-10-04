@@ -1,6 +1,6 @@
-package com.example.Car.Services.service;
+package com.example.Car.Services.service.common;
 
-import com.example.Car.Services.Interface.EmailServiceInterface;
+import com.example.Car.Services.Interface.Commn.EmailServiceInterface;
 import com.example.Car.Services.expection.EmailSendingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

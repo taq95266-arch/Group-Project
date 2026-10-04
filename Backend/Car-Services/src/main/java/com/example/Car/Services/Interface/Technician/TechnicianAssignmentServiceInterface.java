@@ -1,4 +1,4 @@
-package com.example.Car.Services.Interface;
+package com.example.Car.Services.Interface.Technician;
 
 import com.example.Car.Services.DTO.TechnicianAssignmentDTO;
 import com.example.Car.Services.DTO.response.MessageResponse;
