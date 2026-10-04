@@ -49,33 +49,65 @@ public class RepairPhotoService {
         );
     }
 
-    public List<RepairPhotoResponse> getAllPhotos() {
+    public List<RepairPhotoResponse> getAllPhotos(Long requestId) {
 
-        return repairPhotoRepository.findAll()
+        if (!serviceRequestRepository.existsById(requestId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Service request not found"
+            );
+        }
+
+        return repairPhotoRepository.findByServiceRequest_RequestId(requestId)
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public RepairPhotoResponse getPhoto(Long photoId) {
+    public RepairPhotoResponse getPhoto(
+            Long requestId,
+            Long photoId
+    ) {
 
-        return toResponse(findPhoto(photoId));
+        return toResponse(
+                findPhoto(requestId, photoId)
+        );
     }
 
-    public void deletePhoto(Long photoId) {
+    public void deletePhoto(
+            Long requestId,
+            Long photoId
+    ) {
 
-        RepairPhoto repairPhoto = findPhoto(photoId);
+        RepairPhoto repairPhoto =
+                findPhoto(requestId, photoId);
 
         repairPhotoRepository.delete(repairPhoto);
     }
 
-    private RepairPhoto findPhoto(Long photoId) {
+    private RepairPhoto findPhoto(
+            Long requestId,
+            Long photoId
+    ) {
 
-        return repairPhotoRepository.findById(photoId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Repair photo not found"
-                ));
+        RepairPhoto repairPhoto =
+                repairPhotoRepository.findById(photoId)
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Repair photo not found"
+                        ));
+
+        if (!repairPhoto.getServiceRequest()
+                .getRequestId()
+                .equals(requestId)) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Repair photo not found for this service request"
+            );
+        }
+
+        return repairPhoto;
     }
 
     private RepairPhotoResponse toResponse(

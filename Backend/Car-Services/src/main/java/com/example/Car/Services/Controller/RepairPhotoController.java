@@ -34,26 +34,39 @@ public class RepairPhotoController {
             @PathVariable Long requestId,
             @RequestBody RepairPhotoCreateRequest request
     ) {
-        return repairPhotoService.addPhoto(requestId, request);
+        return repairPhotoService.addPhoto(
+                requestId,
+                request
+        );
     }
 
     @GetMapping
-    public List<RepairPhotoResponse> getAllPhotos() {
-        return repairPhotoService.getAllPhotos();
+    public List<RepairPhotoResponse> getAllPhotos(
+            @PathVariable Long requestId
+    ) {
+        return repairPhotoService.getAllPhotos(requestId);
     }
 
     @GetMapping("/{photoId}")
     public RepairPhotoResponse getPhoto(
+            @PathVariable Long requestId,
             @PathVariable Long photoId
     ) {
-        return repairPhotoService.getPhoto(photoId);
+        return repairPhotoService.getPhoto(
+                requestId,
+                photoId
+        );
     }
 
     @DeleteMapping("/{photoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePhoto(
+            @PathVariable Long requestId,
             @PathVariable Long photoId
     ) {
-        repairPhotoService.deletePhoto(photoId);
+        repairPhotoService.deletePhoto(
+                requestId,
+                photoId
+        );
     }
 }
