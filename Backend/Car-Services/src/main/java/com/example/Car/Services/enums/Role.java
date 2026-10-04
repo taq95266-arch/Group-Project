@@ -1,6 +1,7 @@
 package com.example.Car.Services.enums;
 
 public enum Role {
-    USER,
-    ADMIN
+    ADMIN,
+    GARAGE_OWNER,
+    TECHNICIAN
 }

@@ -7,9 +7,9 @@ import com.example.Car.Services.Repository.UserRepository;
 import com.example.Car.Services.Utils.ServiceUtils;
 import com.example.Car.Services.entities.User;
 import com.example.Car.Services.enums.Role;
+import com.example.Car.Services.expection.BadRequestException;
+import com.example.Car.Services.expection.ConflictException;
 import com.example.Car.Services.expection.EmailAlreadyExistsException;
-import com.example.Car.Services.expection.InvalidRoleException;
-import com.example.Car.Services.expection.PhoneAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class UserService implements UserInterface {
         }
 
         if(userRepository.findByPhone(userRequest.getPhone()).isPresent()){
-            throw new PhoneAlreadyExistsException("Email already exists");
+            throw new ConflictException("Email already exists");
         }
 
         
@@ -74,7 +74,7 @@ public class UserService implements UserInterface {
 
     private void validateRole(String role) {
         if(Arrays.stream(Role.values()).noneMatch(r -> r.name().equalsIgnoreCase(role))){
-            throw new InvalidRoleException("Invalid role: " + role);
+            throw new BadRequestException("Invalid role: " + role);
         }
     }
 }

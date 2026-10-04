@@ -1,0 +1,56 @@
+package com.example.Car.Services.Controller.Admin;
+
+
+import com.example.Car.Services.DTO.request.DecisionRequestDTO;
+import com.example.Car.Services.DTO.response.MessageResponse;
+import com.example.Car.Services.DTO.response.RegistrationDocumentResponse;
+import com.example.Car.Services.Interface.RegistrationDocumentInterface;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/admin/registration-documents")
+@RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
+public class AdminRegistrationDocumentController {
+
+
+   private final  RegistrationDocumentInterface registrationDocumentService;
+
+
+    @GetMapping
+    public ResponseEntity<List<RegistrationDocumentResponse>> getAllDocument(){
+        List<RegistrationDocumentResponse> documents = registrationDocumentService.getAllRegistrationDocuments();
+        return ResponseEntity.ok(documents);
+    }
+
+
+    @GetMapping("getById")
+    public ResponseEntity<RegistrationDocumentResponse> getDocumentById(@RequestParam Long Id){
+        RegistrationDocumentResponse documents = registrationDocumentService.getRegistrationDocumentsById(Id);
+        return ResponseEntity.ok(documents);
+    }
+
+
+    @PostMapping("/make-decision/{docId}")
+    public ResponseEntity<MessageResponse> makeDecision(@Valid @PathVariable Long docId, @RequestBody DecisionRequestDTO request) {
+        MessageResponse response = registrationDocumentService.makeDecision(docId,request);
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
+
+
+
+
+
+
+
+}

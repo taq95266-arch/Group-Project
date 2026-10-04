@@ -21,7 +21,7 @@ public class User {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
       private Long id;
 
     @Column(nullable = false, unique = true, length = 12)
@@ -38,11 +38,11 @@ public class User {
 
 
     @Column(nullable = true)
-    private int has_used_free_trial;
+    private Boolean has_used_free_trial;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role = Role.USER;
+    @Column(nullable = false,length = 30)
+    private Role role = Role.GARAGE_OWNER;
 
     @Column(nullable = false)
     private Boolean active = true;
