@@ -1,5 +1,7 @@
 package com.example.Car.Services.service;
 
+import com.example.Car.Services.DTO.request.ServiceRequestCreateRequest;
+import com.example.Car.Services.DTO.response.ServiceRequestResponse;
 import com.example.Car.Services.Repository.ServiceOptionRepository;
 import com.example.Car.Services.Repository.ServiceRequestRepository;
 import com.example.Car.Services.entities.ServiceOption;
@@ -24,24 +26,73 @@ public class ServiceRequestService {
         this.serviceOptionRepository = serviceOptionRepository;
     }
 
-    public ServiceRequest createRequest(ServiceRequest request, Long serviceOptionId) {
+    public ServiceRequestResponse createRequest(
+            ServiceRequestCreateRequest request
+    ) {
 
-        ServiceOption serviceOption = serviceOptionRepository.findById(serviceOptionId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Service option not found"
-                ));
+        ServiceOption serviceOption =
+                serviceOptionRepository.findById(request.serviceOptionId())
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Service option not found"
+                        ));
 
-        request.setServiceOption(serviceOption);
+        ServiceRequest serviceRequest = new ServiceRequest();
 
-        return serviceRequestRepository.save(request);
+        serviceRequest.setServiceOption(serviceOption);
+        serviceRequest.setGuestName(request.guestName());
+        serviceRequest.setGuestPhone(request.guestPhone());
+        serviceRequest.setCarMakeModel(request.carMakeModel());
+        serviceRequest.setCarPlateNumber(request.carPlateNumber());
+        serviceRequest.setAppliedPrice(request.appliedPrice());
+
+        if (request.status() == null || request.status().isBlank()) {
+            serviceRequest.setStatus("PENDING");
+        } else {
+            serviceRequest.setStatus(request.status());
+        }
+
+        return toResponse(
+                serviceRequestRepository.save(serviceRequest)
+        );
     }
 
-    public List<ServiceRequest> getAllRequests() {
-        return serviceRequestRepository.findAll();
+    public List<ServiceRequestResponse> getAllRequests() {
+
+        return serviceRequestRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public ServiceRequest getRequest(Long requestId) {
+    public ServiceRequestResponse getRequest(Long requestId) {
+
+        return toResponse(findRequest(requestId));
+    }
+
+    public ServiceRequestResponse updateStatus(
+            Long requestId,
+            String status
+    ) {
+
+        ServiceRequest serviceRequest = findRequest(requestId);
+
+        serviceRequest.setStatus(status);
+
+        return toResponse(
+                serviceRequestRepository.save(serviceRequest)
+        );
+    }
+
+    public void deleteRequest(Long requestId) {
+
+        ServiceRequest serviceRequest = findRequest(requestId);
+
+        serviceRequestRepository.delete(serviceRequest);
+    }
+
+    private ServiceRequest findRequest(Long requestId) {
+
         return serviceRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -49,19 +100,20 @@ public class ServiceRequestService {
                 ));
     }
 
-    public ServiceRequest updateStatus(Long requestId, String status) {
+    private ServiceRequestResponse toResponse(
+            ServiceRequest serviceRequest
+    ) {
 
-        ServiceRequest request = getRequest(requestId);
-
-        request.setStatus(status);
-
-        return serviceRequestRepository.save(request);
-    }
-
-    public void deleteRequest(Long requestId) {
-
-        ServiceRequest request = getRequest(requestId);
-
-        serviceRequestRepository.delete(request);
+        return new ServiceRequestResponse(
+                serviceRequest.getRequestId(),
+                serviceRequest.getServiceOption().getServiceOptionId(),
+                serviceRequest.getGuestName(),
+                serviceRequest.getGuestPhone(),
+                serviceRequest.getCarMakeModel(),
+                serviceRequest.getCarPlateNumber(),
+                serviceRequest.getAppliedPrice(),
+                serviceRequest.getStatus(),
+                serviceRequest.getCreatedAt()
+        );
     }
 }
