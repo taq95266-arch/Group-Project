@@ -2,6 +2,7 @@ package com.example.Car.Services.Controller;
 
 import com.example.Car.Services.DTO.request.SalaryUpdateRequest;
 import com.example.Car.Services.DTO.request.TechnicianCreateRequest;
+import com.example.Car.Services.DTO.request.TechnicianNotificationRequest;
 import com.example.Car.Services.DTO.response.TechnicianResponse;
 
 import com.example.Car.Services.service.GarageOwnerService;
@@ -112,6 +113,24 @@ public class GarageOwnerController {
         return garageOwnerService.activateTechnician(
                 ownerEmail,
                 technicianId
+        );
+    }
+
+    @PostMapping("/technicians/{technicianId}/notify")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void sendNotification(
+            Authentication authentication,
+            @PathVariable Long technicianId,
+            @RequestBody TechnicianNotificationRequest request
+    ) {
+
+        String ownerEmail =
+                authentication.getName();
+
+        garageOwnerService.sendNotification(
+                ownerEmail,
+                technicianId,
+                request
         );
     }
 }
