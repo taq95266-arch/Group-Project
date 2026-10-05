@@ -1,4 +1,4 @@
-package com.example.Car.Services.Interface.Commn;
+        package com.example.Car.Services.Interface.Commn;
 
 import java.math.BigDecimal;
 
@@ -55,3 +55,4 @@ public interface EmailServiceInterface {
             boolean active
     );
 }
+

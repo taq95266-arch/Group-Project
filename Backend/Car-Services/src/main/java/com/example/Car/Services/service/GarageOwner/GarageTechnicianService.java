@@ -16,10 +16,8 @@ import com.example.Car.Services.enums.Role;
 import com.example.Car.Services.expection.BadRequestException;
 import com.example.Car.Services.expection.ResourceNotFoundException;
 import com.example.Car.Services.service.common.EmailService;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,11 +36,6 @@ public class GarageTechnicianService
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final GarageRepository garageRepository;
-
-
-    // =========================
-    // ADD TECHNICIAN
-    // =========================
 
     @Transactional
     @Override
@@ -121,7 +114,6 @@ public class GarageTechnicianService
                 technicianUser
         );
 
-
         Technician technician =
                 new Technician();
 
@@ -149,8 +141,6 @@ public class GarageTechnicianService
                 technician
         );
 
-
-        // Send RAW token in email
         emailService.sendTechnicianInvitationEmail(
                 technicianUser.getEmail(),
                 technicianUser.getFullName(),
@@ -161,11 +151,6 @@ public class GarageTechnicianService
                 "Technician added successfully and invitation email sent."
         );
     }
-
-
-    // =========================
-    // GET ALL TECHNICIANS
-    // =========================
 
     @Transactional(readOnly = true)
     @Override
@@ -196,11 +181,6 @@ public class GarageTechnicianService
                 );
     }
 
-
-    // =========================
-    // FIND TECHNICIAN
-    // =========================
-
     @Transactional(readOnly = true)
     @Override
     public TechnicianResponseDTO findTechnician(
@@ -225,11 +205,6 @@ public class GarageTechnicianService
         );
     }
 
-
-    // =========================
-    // DEACTIVATE TECHNICIAN
-    // =========================
-
     @Transactional
     @Override
     public MessageResponse deactivateTechnician(
@@ -252,23 +227,16 @@ public class GarageTechnicianService
         if (Boolean.FALSE.equals(
                 technician.getUser().getActive()
         )) {
-
             throw new BadRequestException(
                     "Technician account is already deactivated!"
             );
         }
 
-
         technician
                 .getUser()
-                .setActive(
-                        false
-                );
+                .setActive(false);
 
-        technician.setIsAvailable(
-                false
-        );
-
+        technician.setIsAvailable(false);
 
         userRepository.save(
                 technician.getUser()
@@ -278,24 +246,16 @@ public class GarageTechnicianService
                 technician
         );
 
-
-        // Send deactivation email
         emailService.sendTechnicianStatusEmail(
                 technician.getUser().getEmail(),
                 technician.getUser().getFullName(),
                 false
         );
 
-
         return new MessageResponse(
                 "Technician account deactivated successfully."
         );
     }
-
-
-    // =========================
-    // ACTIVATE TECHNICIAN
-    // =========================
 
     @Transactional
     @Override
@@ -319,23 +279,16 @@ public class GarageTechnicianService
         if (Boolean.TRUE.equals(
                 technician.getUser().getActive()
         )) {
-
             throw new BadRequestException(
                     "Technician account is already active!"
             );
         }
 
-
         technician
                 .getUser()
-                .setActive(
-                        true
-                );
+                .setActive(true);
 
-        technician.setIsAvailable(
-                true
-        );
-
+        technician.setIsAvailable(true);
 
         userRepository.save(
                 technician.getUser()
@@ -345,24 +298,16 @@ public class GarageTechnicianService
                 technician
         );
 
-
-        // Send activation email
         emailService.sendTechnicianStatusEmail(
                 technician.getUser().getEmail(),
                 technician.getUser().getFullName(),
                 true
         );
 
-
         return new MessageResponse(
                 "Technician account activated successfully."
         );
     }
-
-
-    // =========================
-    // UPDATE SALARY
-    // =========================
 
     @Transactional
     @Override
@@ -384,34 +329,24 @@ public class GarageTechnicianService
                         garageId
                 );
 
-
         technician.setSalary(
                 request.getSalary()
         );
-
 
         garageTechnicianRepository.save(
                 technician
         );
 
-
-        // Send salary update email
         emailService.sendTechnicianSalaryUpdateEmail(
                 technician.getUser().getEmail(),
                 technician.getUser().getFullName(),
                 request.getSalary()
         );
 
-
         return new MessageResponse(
                 "Technician salary updated successfully."
         );
     }
-
-
-    // =========================
-    // CHECK GARAGE OWNER
-    // =========================
 
     private void checkGarageOwner(
             Long garageId,
@@ -430,11 +365,6 @@ public class GarageTechnicianService
                 );
     }
 
-
-    // =========================
-    // FIND TECHNICIAN IN GARAGE
-    // =========================
-
     private Technician findTechnicianInGarage(
             Long technicianId,
             Long garageId
@@ -451,11 +381,6 @@ public class GarageTechnicianService
                         )
                 );
     }
-
-
-    // =========================
-    // CONVERT ENTITY TO DTO
-    // =========================
 
     private TechnicianResponseDTO toResponse(
             Technician technician

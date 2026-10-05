@@ -1,4 +1,5 @@
-package com.example.Car.Services.Controller.GarageOwner;
+```java
+        package com.example.Car.Services.Controller.GarageOwner;
 
 import com.example.Car.Services.DTO.request.TechnicianRequestDTO;
 import com.example.Car.Services.DTO.response.MessageResponse;
@@ -23,10 +24,6 @@ public class GarageTechnicianController {
 
     private final GarageTechnicianServiceInterface garageTechnicianService;
 
-    // =========================
-    // CREATE TECHNICIAN
-    // =========================
-
     @PostMapping("/{garageId}/technicians")
     public ResponseEntity<MessageResponse> createTechnician(
             @Valid @RequestBody TechnicianRequestDTO request,
@@ -50,30 +47,16 @@ public class GarageTechnicianController {
         return ResponseEntity.ok(response);
     }
 
-    // =========================
-    // GET ALL TECHNICIANS
-    // =========================
-
-    @GetMapping("/{garageId}/technicians")
-    public ResponseEntity<List<TechnicianResponseDTO>>
-    getTechniciansByGarage(
+    @GetMapping("/garage/{garageId}")
+    public ResponseEntity<List<TechnicianResponseDTO>> getTechniciansByGarage(
             @PathVariable Long garageId
     ) {
 
         List<TechnicianResponseDTO> technicians =
-                garageTechnicianService
-                        .getTechniciansByGarage(
-                                garageId
-                        );
+                garageTechnicianService.getTechniciansByGarage(garageId);
 
-        return ResponseEntity.ok(
-                technicians
-        );
+        return ResponseEntity.ok(technicians);
     }
-
-    // =========================
-    // FIND TECHNICIAN
-    // =========================
 
     @GetMapping("/{garageId}/technicians/{technicianId}")
     public ResponseEntity<TechnicianResponseDTO> findTechnician(
@@ -89,21 +72,14 @@ public class GarageTechnicianController {
         }
 
         TechnicianResponseDTO technician =
-                garageTechnicianService
-                        .findTechnician(
-                                technicianId,
-                                garageId,
-                                currentUser.getId()
-                        );
+                garageTechnicianService.findTechnician(
+                        technicianId,
+                        garageId,
+                        currentUser.getId()
+                );
 
-        return ResponseEntity.ok(
-                technician
-        );
+        return ResponseEntity.ok(technician);
     }
-
-    // =========================
-    // DEACTIVATE TECHNICIAN
-    // =========================
 
     @PutMapping("/{garageId}/technicians/{technicianId}/deactivate")
     public ResponseEntity<MessageResponse> deactivateTechnician(
@@ -119,21 +95,14 @@ public class GarageTechnicianController {
         }
 
         MessageResponse response =
-                garageTechnicianService
-                        .deactivateTechnician(
-                                technicianId,
-                                garageId,
-                                currentUser.getId()
-                        );
+                garageTechnicianService.deactivateTechnician(
+                        technicianId,
+                        garageId,
+                        currentUser.getId()
+                );
 
-        return ResponseEntity.ok(
-                response
-        );
+        return ResponseEntity.ok(response);
     }
-
-    // =========================
-    // ACTIVATE TECHNICIAN
-    // =========================
 
     @PutMapping("/{garageId}/technicians/{technicianId}/activate")
     public ResponseEntity<MessageResponse> activateTechnician(
@@ -149,15 +118,13 @@ public class GarageTechnicianController {
         }
 
         MessageResponse response =
-                garageTechnicianService
-                        .activateTechnician(
-                                technicianId,
-                                garageId,
-                                currentUser.getId()
-                        );
+                garageTechnicianService.activateTechnician(
+                        technicianId,
+                        garageId,
+                        currentUser.getId()
+                );
 
-        return ResponseEntity.ok(
-                response
-        );
+        return ResponseEntity.ok(response);
     }
 }
+

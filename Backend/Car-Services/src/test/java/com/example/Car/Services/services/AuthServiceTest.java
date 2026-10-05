@@ -50,7 +50,7 @@ import static org.mockito.Mockito.*;
             when(passwordEncoder.matches("123456", "encodedPassword"))
                     .thenReturn(true);
 
-            when(jwtUtil.generateToken("test@gmail.com", "USER"))
+            when(jwtUtil.generateToken(12L, "test@gmail.com", "USER"))
                     .thenReturn("fake-jwt-token");
 
             LoginResponse response =
