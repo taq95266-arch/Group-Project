@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,8 +65,8 @@ public class RegistrationDocumentServiceTest {
         validRequest.setCommercialRegisterNumber("CR-102030");
         validRequest.setGovernorate("Muscat");
         validRequest.setState("Seeb");
-        validRequest.setLatitude(23.6141);
-        validRequest.setLongitude(58.5453);
+        validRequest.setLatitude(new BigDecimal("23.6141"));
+        validRequest.setLongitude(new BigDecimal("58.5453"));
         validRequest.setMapAddress("Seeb Industrial Area");
     }
 

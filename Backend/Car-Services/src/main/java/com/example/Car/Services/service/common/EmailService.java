@@ -27,7 +27,6 @@ public class EmailService implements EmailServiceInterface {
     @Value("${app.mail.from}")
     private String fromEmail;
 
-
     @Override
     @Async
     public void sendVerificationEmail(
@@ -36,7 +35,6 @@ public class EmailService implements EmailServiceInterface {
     ) {
 
         try {
-
             MimeMessage message =
                     mailSender.createMimeMessage();
 
@@ -100,7 +98,6 @@ public class EmailService implements EmailServiceInterface {
         }
     }
 
-
     @Override
     @Async
     public void sendPasswordRestEmail(
@@ -109,7 +106,6 @@ public class EmailService implements EmailServiceInterface {
     ) {
 
         try {
-
             MimeMessage message =
                     mailSender.createMimeMessage();
 
@@ -174,7 +170,6 @@ public class EmailService implements EmailServiceInterface {
         }
     }
 
-
     @Override
     @Async
     public void sendWelcomeEmail(
@@ -183,13 +178,11 @@ public class EmailService implements EmailServiceInterface {
     ) {
 
         try {
-
             SimpleMailMessage message =
                     new SimpleMailMessage();
 
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-
             message.setSubject(
                     "Car Services - Application Received"
             );
@@ -225,7 +218,6 @@ public class EmailService implements EmailServiceInterface {
         }
     }
 
-
     @Override
     @Async
     public void sendApprovalEmail(
@@ -235,7 +227,6 @@ public class EmailService implements EmailServiceInterface {
     ) {
 
         try {
-
             MimeMessage message =
                     mailSender.createMimeMessage();
 
@@ -248,7 +239,6 @@ public class EmailService implements EmailServiceInterface {
 
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
-
             helper.setSubject(
                     "Car Services - Application Approved"
             );
@@ -300,7 +290,6 @@ public class EmailService implements EmailServiceInterface {
         }
     }
 
-
     @Override
     @Async
     public void sendRejectionEmail(
@@ -310,13 +299,11 @@ public class EmailService implements EmailServiceInterface {
     ) {
 
         try {
-
             SimpleMailMessage message =
                     new SimpleMailMessage();
 
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-
             message.setSubject(
                     "Car Services - Application Status Update"
             );
@@ -355,7 +342,6 @@ public class EmailService implements EmailServiceInterface {
         }
     }
 
-
     @Override
     @Async
     public void sendGarageRequestConfirmationEmail(
@@ -365,13 +351,11 @@ public class EmailService implements EmailServiceInterface {
     ) {
 
         try {
-
             SimpleMailMessage message =
                     new SimpleMailMessage();
 
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-
             message.setSubject(
                     "Car Services - New Garage Request Received"
             );
@@ -404,7 +388,6 @@ public class EmailService implements EmailServiceInterface {
         }
     }
 
-
     @Override
     @Async
     public void sendTechnicianInvitationEmail(
@@ -414,7 +397,6 @@ public class EmailService implements EmailServiceInterface {
     ) {
 
         try {
-
             MimeMessage message =
                     mailSender.createMimeMessage();
 
@@ -427,7 +409,6 @@ public class EmailService implements EmailServiceInterface {
 
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
-
             helper.setSubject(
                     "Car Services - Technician Invitation"
             );
@@ -479,11 +460,6 @@ public class EmailService implements EmailServiceInterface {
         }
     }
 
-
-    // =========================
-    // SALARY UPDATE EMAIL
-    // =========================
-
     @Override
     @Async
     public void sendTechnicianSalaryUpdateEmail(
@@ -493,7 +469,6 @@ public class EmailService implements EmailServiceInterface {
     ) {
 
         try {
-
             SimpleMailMessage message =
                     new SimpleMailMessage();
 
@@ -537,11 +512,6 @@ public class EmailService implements EmailServiceInterface {
         }
     }
 
-
-    // =========================
-    // ACCOUNT STATUS EMAIL
-    // =========================
-
     @Override
     @Async
     public void sendTechnicianStatusEmail(
@@ -551,7 +521,6 @@ public class EmailService implements EmailServiceInterface {
     ) {
 
         try {
-
             SimpleMailMessage message =
                     new SimpleMailMessage();
 
@@ -574,12 +543,9 @@ public class EmailService implements EmailServiceInterface {
                             + ".\n\n";
 
             if (active) {
-
                 emailBody +=
                         "You can now access your technician account.\n\n";
-
             } else {
-
                 emailBody +=
                         "You will not be able to access your technician account until it is activated again.\n\n";
             }

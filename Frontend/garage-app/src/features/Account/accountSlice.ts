@@ -13,11 +13,11 @@ const initialState: AccountState = {
   status: "idle",
 };
 
-const getRolesFromToken = (token: string) => {
-  if (!token) return [];
+const getRolesFromToken = (token?: string | null): string[] => {
+  if (!token || typeof token !== "string") return [];
   try {
     const claims = JSON.parse(atob(token.split(".")[1]));
-    const roles = claims.roles || claims.authorities || claims.scope;
+    const roles = claims?.roles || claims?.authorities || claims?.scope || claims?.role;
     if (!roles) return [];
     return typeof roles === "string" ? [roles] : roles;
   } catch (e) {
@@ -50,11 +50,23 @@ export const fetchCurrentUserAsync = createAsyncThunk<User>(
   "account/fetchCurrentUser",
   async (_, thunkAPI) => {
     const userString = localStorage.getItem("user");
-    if (userString) {
-      const user = JSON.parse(userString) as User;
-      return user;
+    if (!userString) return thunkAPI.rejectWithValue(null);
+
+    try {
+      const storedUser = JSON.parse(userString) as User;
+      
+      const user = await agent.Account.currentUser(); 
+      
+      const updatedUser = {
+        ...user,
+        token: user.token || storedUser.token
+      };
+
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      return updatedUser;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(null);
     }
-    return thunkAPI.rejectWithValue(null);
   }
 );
 
@@ -82,8 +94,10 @@ export const accountSlice = createSlice({
       isAnyOf(SignInAsync.fulfilled, fetchCurrentUserAsync.fulfilled),
       (state, action) => {
         const payload = action.payload as User;
-        const roles = getRolesFromToken(payload.token);
-        state.user = { ...action.payload, roles };
+        const tokenRoles = getRolesFromToken(payload.token);
+        const roles = tokenRoles.length > 0 ? tokenRoles : (payload.role ? [payload.role] : []);
+        state.user = { ...payload, roles }; 
+        state.status = "idle";
       }
     );
 

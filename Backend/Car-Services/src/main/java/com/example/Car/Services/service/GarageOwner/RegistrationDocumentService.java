@@ -80,11 +80,8 @@ public class RegistrationDocumentService  implements RegistrationDocumentInterfa
         document.setCreatedAt(Instant.now());
         RegistrationDocument savedDocument = documentRepository.save(document);
 
-        try {
-            emailService.sendWelcomeEmail(request.getEmail(), request.getFullName());
-        }catch (Exception ex) {
-            log.error("Failed to send welcome email to {}: {}", savedOwner.getEmail(), ex.getMessage());
-        }
+        emailService.sendWelcomeEmail(request.getEmail(), request.getFullName());
+
 
         log.info("Garage registration completed successfully. Document ID: {}", savedDocument.getDocId());
         return new MessageResponse("Registration request submitted successfully. Awaiting admin approval.");

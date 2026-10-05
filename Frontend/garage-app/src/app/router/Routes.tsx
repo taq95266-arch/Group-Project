@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Login from "../../features/Account/Login";
 import RequireAuth from "./RequireAuth";
 import App from "../layout/App";
+import AdminDashboard from "../../features/Admin/AdminDashboard";
 
 
 export const router = createBrowserRouter([
@@ -20,11 +21,11 @@ export const router = createBrowserRouter([
           
       {
         // admin routes
-        element: <RequireAuth roles={["Admin"]} />,
+        element: <RequireAuth roles={["ADMIN"]} />,
         children: [
           {
-            path: "dashboard",
-            // element: <Dashboard />,
+            path: "admin/dashboard",
+            element: <AdminDashboard />,
             children: [
 
             ],

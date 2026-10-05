@@ -5,7 +5,9 @@ import com.example.Car.Services.DTO.request.UserRequest;
 import com.example.Car.Services.DTO.response.EmailValidationResponse;
 import com.example.Car.Services.DTO.response.LoginResponse;
 import com.example.Car.Services.DTO.response.MessageResponse;
+import com.example.Car.Services.Security.SecureToken;
 import com.example.Car.Services.entities.User;
+import com.example.Car.Services.enums.RequestStatus;
 import com.example.Car.Services.enums.Role;
 import com.example.Car.Services.expection.*;
 import com.example.Car.Services.Repository.UserRepository;
@@ -91,9 +93,8 @@ public class AuthService implements AuthServiceInterface {
             log.warn("Login blocked: Email not verified for email: {}", email);
             throw new BadRequestException("Please verify your email adderss before loggin in. Check your inbox for the verification link");
         }
-        final String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        log.info("Login successful for email: {} with Role: {}", user.getEmail(), user.getRole().name());
-        return new LoginResponse(token,user.getEmail(),user.getFullName(),user.getRole().name());
+        final String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());        log.info("Login successful for email: {} with Role: {}", user.getEmail(), user.getRole().name());
+        return new LoginResponse(user.getEmail(),user.getFullName(),user.getRole().name());
     }
 
 
@@ -147,25 +148,23 @@ public class AuthService implements AuthServiceInterface {
 
     @Override
     public MessageResponse forgotPassword(String email) {
-        Optional<User> userOptional  = userRepository.findByEmail(email);
 
-        if(userOptional.isPresent()) {
-            User user = userOptional.get();
+        userRepository.findByEmail(email).ifPresent(user -> {
             String resetToken = UUID.randomUUID().toString();
+            SecureToken token = SecureToken.generate();
             user.setPasswordResetToken(resetToken);
             user.setPasswordResetTokenExpiry(Instant.now().plusSeconds(3600));
             userRepository.save(user);
             emailService.sendPasswordRestEmail(email, resetToken);
-        }
+        });
             return new MessageResponse("If an account exists with this email, " +
                     "you will receive a password reset email.");
-
-
     }
 
     @Override
     @Transactional
     public MessageResponse resetPassword(String token, String newPassword) {
+
           User user = userRepository.findByPasswordResetToken(token)
                   .orElseThrow(() -> new BadCredentialsException("Invalid or expired token"));
 
@@ -175,7 +174,7 @@ public class AuthService implements AuthServiceInterface {
          user.setPassword(passwordEncoder.encode(newPassword));
          user.setPasswordResetToken(null);
          user.setPasswordResetTokenExpiry(null);
-//         userRepository.save(user);
+         user.setActive(true);
         return new MessageResponse("Password reset successfully. You can now login with your password ");
     }
 
@@ -200,6 +199,29 @@ public class AuthService implements AuthServiceInterface {
     @Override
     public LoginResponse currentUser(String email) {
         User user = serviceUtils.getUserByEmailOrThrow(email);
-        return new LoginResponse(null,user.getEmail(), user.getFullName(), user.getRole().name());
+        return new LoginResponse(user.getEmail(), user.getFullName(), user.getRole().name());
     }
+
+
+
+    @Override
+    @Transactional
+    public MessageResponse technicianResetPassword(String token, String newPassword) {
+
+        User user = userRepository.findByPasswordResetToken(token)
+                .orElseThrow(() -> new BadCredentialsException("Invalid or expired token"));
+
+        if(user.getPasswordResetTokenExpiry() == null || user.getPasswordResetTokenExpiry().isBefore(Instant.now())){
+            throw new BadCredentialsException("Reset token has expired");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordResetToken(null);
+        user.setPasswordResetTokenExpiry(null);
+        user.setActive(true);
+        user.setEmailVerified(true);
+        return new MessageResponse("Password reset successfully. You can now login with your password ");
+    }
+
+
+
 }

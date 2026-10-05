@@ -1,4 +1,5 @@
-package com.example.Car.Services.Interface.GarageOwner;
+
+        package com.example.Car.Services.Interface.GarageOwner;
 
 import com.example.Car.Services.DTO.request.SalaryUpdateRequest;
 import com.example.Car.Services.DTO.request.TechnicianRequestDTO;

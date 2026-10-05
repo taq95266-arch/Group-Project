@@ -2,11 +2,13 @@ package com.example.Car.Services.service.Admin;
 
 import com.example.Car.Services.DTO.request.DecisionRequestDTO;
 import com.example.Car.Services.DTO.response.MessageResponse;
+import com.example.Car.Services.DTO.response.PageResponse;
 import com.example.Car.Services.DTO.response.RegistrationDocumentResponse;
 import com.example.Car.Services.Interface.Admin.AdminRegistrationDocumentInterface;
 import com.example.Car.Services.Repository.GarageRepository;
 import com.example.Car.Services.Repository.RegistrationDocumentRepository;
 import com.example.Car.Services.Repository.UserRepository;
+import com.example.Car.Services.Utils.PaginationUtils;
 import com.example.Car.Services.entities.RegistrationDocument;
 import com.example.Car.Services.entities.User;
 import com.example.Car.Services.entities.Garage;
@@ -16,6 +18,8 @@ import com.example.Car.Services.expection.BadRequestException;
 import com.example.Car.Services.service.common.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,14 +41,23 @@ public class GarageRegistrationAdminService  implements AdminRegistrationDocumen
 
     @Transactional(readOnly = true)
     @Override
-    public List<RegistrationDocumentResponse> getAllRegistrationDocuments() {
-        log.info("Fetching all registration documents fo admin view");
-        List<RegistrationDocument> documents = documentRepository.findAll();
-        log.info("Successfully fetched {} registration documents", documents.size());
-        return RegistrationDocumentResponse.fromEntity(documents);
+    public PageResponse<RegistrationDocumentResponse> getAllRegistrationDocuments(int page, int size) {
 
+        log.info("Fetching all registration documents for admin view");
+        Pageable pageable = PaginationUtils.createPageRequest(page, size);
 
+        Page<RegistrationDocument> documents =
+                documentRepository.findAll(pageable);
+
+        log.info("Successfully fetched {} registration documents",
+                documents.getNumberOfElements());
+
+        return PaginationUtils.toPageResponse(
+                documents,
+                RegistrationDocumentResponse::fromEntity
+        );
     }
+
 
 
     @Transactional(readOnly = true)
@@ -95,14 +108,10 @@ public class GarageRegistrationAdminService  implements AdminRegistrationDocumen
         }
 
         if(owner.getEmail() != null){
-            try {
-                if ("APPROVED".equalsIgnoreCase(requestDTO.getStatus().toString())) {
-                    emailService.sendApprovalEmail(owner.getEmail(), owner.getFullName(),owner.getVerificationToken());
-                } else if ("REJECTED".equalsIgnoreCase(requestDTO.getStatus().toString())) {
-                    emailService.sendRejectionEmail(owner.getEmail(), owner.getFullName(), requestDTO.getReason());
-                }
-            }catch(Exception ex){
-                log.error("Failed to send status update email to {}: {}", owner.getEmail(), ex.getMessage(), ex);
+            if (RequestStatus.APPROVED.equals(requestDTO.getStatus())) {
+                emailService.sendApprovalEmail(owner.getEmail(), owner.getFullName(), owner.getVerificationToken());
+            } else if (RequestStatus.REJECTED.equals(requestDTO.getStatus())) {
+                emailService.sendRejectionEmail(owner.getEmail(), owner.getFullName(), requestDTO.getReason());
             }
         }
         return new MessageResponse("Decision saved and processed successfully for document ID: " + id);

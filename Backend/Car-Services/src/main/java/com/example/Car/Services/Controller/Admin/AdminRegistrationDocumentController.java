@@ -3,15 +3,18 @@ package com.example.Car.Services.Controller.Admin;
 
 import com.example.Car.Services.DTO.request.DecisionRequestDTO;
 import com.example.Car.Services.DTO.response.MessageResponse;
+import com.example.Car.Services.DTO.response.PageResponse;
 import com.example.Car.Services.DTO.response.RegistrationDocumentResponse;
 import com.example.Car.Services.Interface.Admin.AdminRegistrationDocumentInterface;
 import com.example.Car.Services.Interface.GarageOwner.RegistrationDocumentInterface;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.print.Pageable;
 import java.util.List;
 
 @RestController
@@ -25,8 +28,8 @@ public class AdminRegistrationDocumentController {
 
 
     @GetMapping
-    public ResponseEntity<List<RegistrationDocumentResponse>> getAllDocument(){
-        List<RegistrationDocumentResponse> documents = registrationDocumentService.getAllRegistrationDocuments();
+    public ResponseEntity<PageResponse<RegistrationDocumentResponse>> getAllDocument(int page, int size){
+        PageResponse<RegistrationDocumentResponse> documents = registrationDocumentService.getAllRegistrationDocuments(page,size);
         return ResponseEntity.ok(documents);
     }
 

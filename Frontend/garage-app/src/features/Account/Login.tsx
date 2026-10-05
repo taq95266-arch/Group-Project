@@ -4,7 +4,7 @@ import { LockOutlined } from "@mui/icons-material";
 import { type FieldValues, useForm } from "react-hook-form";
 import { SignInAsync } from "./accountSlice";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { useAppDispatch } from "../../store/configureStore";
+import { useAppDispatch, useAppSelector } from "../../store/configureStore";
 import AppTextInput from "../../app/components/AppTextInput";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
@@ -15,6 +15,7 @@ export default function Login() {
   const location = useLocation();
   const { t } = useTranslation();
 
+  const { status } = useAppSelector((state) => state.account);
 
   const from = location.state?.from?.pathname || "/";
 
@@ -29,14 +30,16 @@ export default function Login() {
   async function submitForm(data: FieldValues) {
     try {
       await dispatch(SignInAsync(data)).unwrap();
-      navigate(from, { replace: true }); 
-    }catch (error: unknown) {
-    const err = error as { error?: string; message?: string };
-    toast.error(
-        err.error || err.message || "Invalid username or password"
-    );
-}
+      navigate(from, { replace: true });
+    } catch (error: unknown) {
+      const err = error as { error?: string; message?: string };
+      toast.error(
+        err.error || err.message || t("login.errors.invalidCredentials", "Invalid username or password")
+      );
+    }
   }
+
+  const isLoading = isSubmitting || status.includes("pending");
 
   return (
     <Container
@@ -55,7 +58,7 @@ export default function Login() {
       </Avatar>
 
       <Typography component="h1" variant="h5">
-        Sign In
+        {t("login.title", "Sign In")}
       </Typography>
 
       <Box
@@ -64,36 +67,40 @@ export default function Login() {
         noValidate
         sx={{ mt: 1, width: "100%" }}
       >
-  
-      <AppTextInput
+        <AppTextInput
           name="email"
-          label="Email or Username"
+          label={t("login.fields.email", "Email or Username")}
           control={control}
-          rules={{ required: "Email or username is required" }}
+          rules={{ 
+            required: t("login.validation.emailRequired", "Email or username is required") 
+          }}
         />
-      <AppTextInput
+
+        <AppTextInput
           name="password"
-          label="Password"
+          label={t("login.fields.password", "Password")}
           type="password"
           control={control}
-          rules={{ required: "Password is required" }}
+          rules={{ 
+            required: t("login.validation.passwordRequired", "Password is required") 
+          }}
         />
 
         <LoadingButton
-          loading={isSubmitting}
+          loading={isLoading}
           disabled={!isValid}
           type="submit"
           fullWidth
           variant="contained"
           sx={{ mt: 3, mb: 2 }}
         >
-          {t('Sign In')}
+          {t("login.button", "Sign In")}
         </LoadingButton>
 
         <Typography variant="body2" color="text.secondary" align="center">
-          {"Don't have an account? "}
+          {t("login.noAccount", "Don't have an account?")}{" "}
           <Link to="/register" style={{ color: "#1976d2", textDecoration: "none" }}>
-            Register
+            {t("login.registerLink", "Register")}
           </Link>
         </Typography>
       </Box>

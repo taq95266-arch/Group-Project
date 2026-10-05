@@ -8,6 +8,17 @@ axios.defaults.baseURL = 'http://localhost:8080/api/';
 axios.defaults.withCredentials = false;
 
 
+
+axios.interceptors.request.use((config) => {
+    const token = localStorage.getItem("token");
+    if(token){
+       config.headers.Authorization = `Bearer ${token}`; 
+    }
+    return config;
+})
+
+
+
 const responsBody = (response: AxiosResponse) => response.data;
 
 
@@ -39,12 +50,14 @@ const requests = {
 // }
 
 const Account = {
-    login : (values :FieldValues) => requests.post('auth/login',values)
+    login : (values :FieldValues) => requests.post('auth/login',values),
+    currentUser: () => requests.get('auth/current-user'),
+
 
 }
 
-const garage_Owner = {
-    registerDocumnet : (values :FieldValues) => requests.post('owner/registration',values)
+const Owner = {
+    registerDocumnet : (values :FieldValues) => requests.post('owner/registration/register-owner',values)
 
 }
 
@@ -54,7 +67,7 @@ const garage_Owner = {
 
 const agent = {
     Account,
-    garage_Owner
+    Owner
 }
 
 export default agent;
