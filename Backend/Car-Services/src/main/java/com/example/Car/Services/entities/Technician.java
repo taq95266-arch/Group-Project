@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "technicians")
 @Getter
@@ -25,10 +27,13 @@ public class Technician {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "garage_id", nullable = false)
-    private RegistrationDocument garage;
+    private Garage garage;
 
     @Column(name = "specialization", length = 100)
     private String specialization;
+
+    @Column(name = "salary", precision = 10, scale = 3)
+    private BigDecimal salary;
 
     @Column(name = "is_available")
     private Boolean isAvailable = true;
