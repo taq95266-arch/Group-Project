@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,6 +18,7 @@ public class TechnicianResponseDTO {
     private String email;
     private String phone;
     private String specialization;
+    private BigDecimal salary;
     private Boolean isAvailable;
     private Boolean isActive;
 }

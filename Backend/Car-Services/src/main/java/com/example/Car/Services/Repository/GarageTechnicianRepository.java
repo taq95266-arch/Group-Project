@@ -8,9 +8,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TechnicianRepository extends JpaRepository<Technician, Long> {
+public interface GarageTechnicianRepository
+        extends JpaRepository<Technician, Long> {
 
-    List<Technician> findByGarageDocId(Long garageDocId);
+    List<Technician> findByGarageId(Long garageId);
 
     Optional<Technician> findByUserId(Long userId);
+
+    Optional<Technician> findByIdAndGarageId(
+            Long technicianId,
+            Long garageId
+    );
 }
