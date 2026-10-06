@@ -27,6 +27,7 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINT = {
 
             "/api/auth/**",
+            "/api/stripe/webhook",
             "/api/owner/registration/**",
             "/ws-tracking/**",
             "/api/customer/**",
