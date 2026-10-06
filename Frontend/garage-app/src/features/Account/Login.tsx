@@ -1,0 +1,109 @@
+import { Avatar, Box, Container, Paper, Typography } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { LockOutlined } from "@mui/icons-material";
+import { type FieldValues, useForm } from "react-hook-form";
+import { SignInAsync } from "./accountSlice";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../store/configureStore";
+import AppTextInput from "../../app/components/AppTextInput";
+import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
+
+export default function Login() {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { t } = useTranslation();
+
+  const { status } = useAppSelector((state) => state.account);
+
+  const from = location.state?.from?.pathname || "/";
+
+  const {
+    handleSubmit,
+    control,
+    formState: { isSubmitting, isValid },
+  } = useForm({
+    mode: "onTouched",
+  });
+
+  async function submitForm(data: FieldValues) {
+    try {
+      await dispatch(SignInAsync(data)).unwrap();
+      navigate(from, { replace: true });
+    } catch (error: unknown) {
+      const err = error as { error?: string; message?: string };
+      toast.error(
+        err.error || err.message || t("login.errors.invalidCredentials", "Invalid username or password")
+      );
+    }
+  }
+
+  const isLoading = isSubmitting || status.includes("pending");
+
+  return (
+    <Container
+      component={Paper}
+      maxWidth="xs"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        p: 4,
+        marginTop: "5%",
+      }}
+    >
+      <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+        <LockOutlined />
+      </Avatar>
+
+      <Typography component="h1" variant="h5">
+        {t("login.title", "Sign In")}
+      </Typography>
+
+      <Box
+        component="form"
+        onSubmit={handleSubmit(submitForm)}
+        noValidate
+        sx={{ mt: 1, width: "100%" }}
+      >
+        <AppTextInput
+          name="email"
+          label={t("login.fields.email", "Email or Username")}
+          control={control}
+          rules={{ 
+            required: t("login.validation.emailRequired", "Email or username is required") 
+          }}
+        />
+
+        <AppTextInput
+          name="password"
+          label={t("login.fields.password", "Password")}
+          type="password"
+          control={control}
+          rules={{ 
+            required: t("login.validation.passwordRequired", "Password is required") 
+          }}
+        />
+
+        <LoadingButton
+          loading={isLoading}
+          disabled={!isValid}
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{ mt: 3, mb: 2 }}
+        >
+          {t("login.button", "Sign In")}
+        </LoadingButton>
+
+        <Typography variant="body2" color="text.secondary" align="center">
+          {t("login.noAccount", "Don't have an account?")}{" "}
+          <Link to="/register" style={{ color: "#1976d2", textDecoration: "none" }}>
+            {t("login.registerLink", "Register")}
+          </Link>
+        </Typography>
+      </Box>
+    </Container>
+  );
+}

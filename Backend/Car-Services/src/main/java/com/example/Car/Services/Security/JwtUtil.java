@@ -66,11 +66,17 @@ public class JwtUtil {
     }
 
 
-      public String generateToken(String username,String role){
+    public String generateToken(Long userId, String username, String role) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
         claims.put("role", role);
-        return doGenerateToken(claims,username);
-      }
+        return doGenerateToken(claims, username);
+    }
+
+
+    public Long getUserIdFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("userId", Long.class));
+    }
 
     private String doGenerateToken(Map<String, Object> claims, String subject) {
 
@@ -87,13 +93,9 @@ public class JwtUtil {
 
 
 
-    public Boolean validateToken(String token){
-        try{
-            getAllClaimsFromToken(token);
-            return !isTokenExpired(token);
-        }catch (Exception e){
-             return false;
-        }
+    public Boolean validateToken(String token) {
+        getAllClaimsFromToken(token);
+        return !isTokenExpired(token);
     }
 
 

@@ -22,10 +22,6 @@ public class TechnicianAssignment {
     private Long assignmentId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "request_id", nullable = false)
-    private ServiceRequest serviceRequest;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "technician_id", nullable = false)
     private Technician technician;
 
@@ -63,6 +59,7 @@ public class TechnicianAssignment {
         if (assignedAt == null) {
             assignedAt = Instant.now();
         }
+
         if (status == null) {
             status = AssignmentStatus.ASSIGNED;
         }
