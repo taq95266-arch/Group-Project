@@ -26,8 +26,4 @@ public class SubscriptionPlanController {
         return ResponseEntity.ok(plans); }
 
 
-
-
-
-
 }

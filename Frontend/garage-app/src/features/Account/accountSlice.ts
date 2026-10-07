@@ -1,73 +1,74 @@
-import { createAsyncThunk, createSlice, isAnyOf } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import agent from "../../app/api/agent";
-import type { User } from "../../app/models/User";
-import type{ FieldValues } from "react-hook-form";
-import { toast } from "react-toastify";
+import { isRole } from "../../app/models/enums";
+import type { LoginRequest, LoginResponse, User } from "../../app/models/User";
+import { clearStoredUser, loadStoredUser, storeUser } from "../../app/utils/authStorage";
+import { toAppError } from "../../app/utils/error";
+import { decodeToken } from "../../app/utils/jwt";
+
 interface AccountState {
   user: User | null;
-  status: string;
+  status: "idle" | "signingIn" | "refreshing";
 }
 
 const initialState: AccountState = {
-  user: null,
+  user: loadStoredUser(),
   status: "idle",
 };
 
-const getRolesFromToken = (token?: string | null): string[] => {
-  if (!token || typeof token !== "string") return [];
-  try {
-    const claims = JSON.parse(atob(token.split(".")[1]));
-    const roles = claims?.roles || claims?.authorities || claims?.scope || claims?.role;
-    if (!roles) return [];
-    return typeof roles === "string" ? [roles] : roles;
-  } catch (e) {
-    console.error("Failed to parse JWT token:", e);
-    return [];
-  }
-};
+function toUser(response: LoginResponse): User {
+  const claims = decodeToken(response.token);
+  const role = claims?.role ?? (isRole(response.role) ? response.role : null);
+  if (!role) throw new Error("Unsupported role returned by the server");
+  return {
+    token: response.token,
+    email: response.email,
+    fullName: response.fullName,
+    role,
+    userId: claims?.userId ?? null,
+  };
+}
 
-export const SignInAsync = createAsyncThunk<User, FieldValues>(
-  "account/SignInAsync",
-  async (data, thunkAPI) => {
+export const signInAsync = createAsyncThunk<User, LoginRequest, { rejectValue: string }>(
+  "account/signIn",
+  async (values, thunkAPI) => {
     try {
-      const user = await agent.Account.login(data);
-      localStorage.setItem("user", JSON.stringify(user));
+      const user = toUser(await agent.Account.login({ ...values, email: values.email.trim() }));
+      storeUser(user);
       return user;
- } catch (error: any) {
-    const message =
-        error.response?.data?.error ||
-        error.response?.data?.message ||
-        error.message ||
-        "An unexpected error occurred";
-    return thunkAPI.rejectWithValue({
-        error: message
-    });
-}
-}
+    } catch (error) {
+      return thunkAPI.rejectWithValue(toAppError(error).message);
+    }
+  },
 );
 
-export const fetchCurrentUserAsync = createAsyncThunk<User>(
+export const fetchCurrentUserAsync = createAsyncThunk<User, void, { rejectValue: string }>(
   "account/fetchCurrentUser",
   async (_, thunkAPI) => {
-    const userString = localStorage.getItem("user");
-    if (!userString) return thunkAPI.rejectWithValue(null);
-
     try {
-      const storedUser = JSON.parse(userString) as User;
-      
-      const user = await agent.Account.currentUser(); 
-      
-      const updatedUser = {
-        ...user,
-        token: user.token || storedUser.token
+      const response = await agent.Account.currentUser();
+
+      const storedUser = loadStoredUser();
+
+      if (!storedUser?.token) {
+        throw new Error("No stored authentication token");
+      }
+
+      const user: User = {
+        token: storedUser.token,
+        email: response.email,
+        fullName: response.fullName,
+        role: isRole(response.role) ? response.role : storedUser.role,
+        userId: storedUser.userId,
       };
 
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      return updatedUser;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(null);
+      storeUser(user);
+
+      return user;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(toAppError(error).message);
     }
-  }
+  },
 );
 
 export const accountSlice = createSlice({
@@ -76,34 +77,37 @@ export const accountSlice = createSlice({
   reducers: {
     signOut: (state) => {
       state.user = null;
-      localStorage.removeItem("user");
+      state.status = "idle";
+      clearStoredUser();
     },
-    setUser: (state, action) => {
-      const roles = getRolesFromToken(action.payload.token);
-      state.user = { ...action.payload, roles };
+    setUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+      storeUser(action.payload);
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchCurrentUserAsync.rejected, (state) => {
-      state.user = null;
-      localStorage.removeItem("user");
-      toast.error("Session expired - please login again");
-    });
-
-    builder.addMatcher(
-      isAnyOf(SignInAsync.fulfilled, fetchCurrentUserAsync.fulfilled),
-      (state, action) => {
-        const payload = action.payload as User;
-        const tokenRoles = getRolesFromToken(payload.token);
-        const roles = tokenRoles.length > 0 ? tokenRoles : (payload.role ? [payload.role] : []);
-        state.user = { ...payload, roles }; 
+    builder
+      .addCase(signInAsync.pending, (state) => {
+        state.status = "signingIn";
+      })
+      .addCase(signInAsync.fulfilled, (state, action) => {
+        state.user = action.payload;
         state.status = "idle";
-      }
-    );
-
-    builder.addMatcher(isAnyOf(SignInAsync.rejected), (_, action) => {
-      throw action.payload;
-    });
+      })
+      .addCase(signInAsync.rejected, (state) => {
+        state.status = "idle";
+      })
+      .addCase(fetchCurrentUserAsync.pending, (state) => {
+        state.status = "refreshing";
+      })
+      .addCase(fetchCurrentUserAsync.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.status = "idle";
+      })
+      
+      .addCase(fetchCurrentUserAsync.rejected, (state) => {
+        state.status = "idle";
+      });
   },
 });
 

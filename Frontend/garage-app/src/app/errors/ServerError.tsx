@@ -1,41 +1,27 @@
-import { Container, Divider, Paper, Typography } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { Button, Container, Divider, Paper, Typography } from "@mui/material";
+import { Link, useRouteError } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { paths } from "../utils/paths";
 
-
-
-
-interface LocationState {
-  error?: {
-    title?: string;
-    detail?: string;
-  };
-}
 export default function ServerError() {
-   const location = useLocation();
-  const state = location.state as LocationState;
+  const { t } = useTranslation();
+  const error = useRouteError();
+  const detail = error instanceof Error ? error.message : undefined;
 
-    return (
-
-        <Container component={Paper}>
-            {state?.error ? (
-                <>
-                    <Typography gutterBottom variant="h3" color='secondary'>
-                        {state.error.title}
-                    </Typography>
-                    <Divider />
-
-                    <Typography variant="body1">
-                        {state.error.detail || 'Internal server error'}
-                    </Typography>
-                </>
-            ) : (
-                    <Typography gutterBottom variant='h5'>
-                        Server Error
-                    </Typography>
-            )}
-            
-         
-
-        </Container>
-    )
+  return (
+    <Container component={Paper} maxWidth="sm" sx={{ p: 4, mt: 8, textAlign: "center" }}>
+      <Typography gutterBottom variant="h5" color="secondary">
+        {t("errors.serverError")}
+      </Typography>
+      <Divider sx={{ my: 2 }} />
+      {detail && (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {detail}
+        </Typography>
+      )}
+      <Button component={Link} to={paths.home} variant="contained">
+        {t("errors.goHome")}
+      </Button>
+    </Container>
+  );
 }

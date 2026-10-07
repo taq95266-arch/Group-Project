@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+
+Frontend/garage-app/.env.development
+Backend/Car-Services/uploads/

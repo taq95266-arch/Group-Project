@@ -1,28 +1,48 @@
-import { TextField } from "@mui/material";
-import { useController, type UseControllerProps } from "react-hook-form";
+import { TextField, type TextFieldProps } from "@mui/material";
+import { useController, type FieldValues, type UseControllerProps } from "react-hook-form";
 
-interface Props extends UseControllerProps {
-    label: string;
-    multiline?: boolean;
-    rows?: number;
-    type?: string;
-}
+type Props<T extends FieldValues> = UseControllerProps<T> & {
+  label: string;
+  multiline?: boolean;
+  rows?: number;
+  type?: string;
+  autoComplete?: string;
+  disabled?: boolean;
+  helperText?: string;
+  slotProps?: TextFieldProps["slotProps"];
+};
 
-export default function AppTextInput(props: Props) {
-    const { fieldState, field } = useController({ ...props, defaultValue: '' })
+export default function AppTextInput<T extends FieldValues>({
+  label,
+  multiline,
+  rows,
+  type,
+  autoComplete,
+  disabled,
+  helperText,
+  slotProps,
+  ...controllerProps
+}: Props<T>) {
+  const { fieldState, field } = useController({
+    ...controllerProps,
+    defaultValue: (controllerProps.defaultValue ?? "") as never,
+  });
 
-    return (
-        <TextField
-            {...props}
-            {...field}
-            multiline={props.multiline}
-            rows={props.rows}
-            type={props.type}
-            fullWidth
-            variant="outlined"
-            error={!!fieldState.error}
-            helperText={fieldState.error?.message}
-            margin="normal"
-        />
-    )
+  return (
+    <TextField
+      {...field}
+      label={label}
+      multiline={multiline}
+      rows={rows}
+      type={type}
+      autoComplete={autoComplete}
+      disabled={disabled}
+      fullWidth
+      variant="outlined"
+      margin="normal"
+      error={!!fieldState.error}
+      helperText={fieldState.error?.message ?? helperText}
+      slotProps={slotProps}
+    />
+  );
 }
