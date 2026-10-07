@@ -1,4 +1,3 @@
-
 package com.example.Car.Services.Controller.Customer;
 
 import com.example.Car.Services.DTO.request.ServiceCustomerRequestRequest;
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/service-request")
+@RequestMapping("/api/customer/service-request")
 public class ServiceCustomerRequestController {
 
     private final ServiceCustomerRequestService service;
@@ -43,7 +42,7 @@ public class ServiceCustomerRequestController {
     public ResponseEntity<ServiceCustomerRequestResponse> update(
             @PathVariable("id") Long id,
             @RequestBody ServiceCustomerRequestRequest request) {
-        return ResponseEntity.ok(service.Update(id, request));
+        return ResponseEntity.ok(service.update(id, request));
     }
 
     @DeleteMapping("/{id}")
