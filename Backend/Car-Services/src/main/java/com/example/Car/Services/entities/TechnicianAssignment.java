@@ -1,6 +1,5 @@
 package com.example.Car.Services.entities;
 
-import com.example.Car.Services.DTO.request.ServiceRequest;
 import com.example.Car.Services.enums.AssignmentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -22,20 +21,20 @@ public class TechnicianAssignment {
     @Column(name = "assignment_id")
     private Long assignmentId;
 
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "request_id", nullable = false)
-//    private ServiceRequest serviceRequest;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "request_id", nullable = false)
+    private ServiceCustomerRequest serviceRequest;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "technician_id", nullable = false)
-    private User technician;
+    private Technician technician;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "assigned_by", nullable = false)
     private User assignedBy;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "status", nullable = false, length = 20)
     private AssignmentStatus status = AssignmentStatus.ASSIGNED;
 
     @Column(name = "current_latitude", precision = 10, scale = 7)
@@ -61,9 +60,11 @@ public class TechnicianAssignment {
 
     @PrePersist
     private void onCreate() {
+
         if (assignedAt == null) {
             assignedAt = Instant.now();
         }
+
         if (status == null) {
             status = AssignmentStatus.ASSIGNED;
         }
