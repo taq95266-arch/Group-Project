@@ -16,8 +16,11 @@ import com.example.Car.Services.enums.Role;
 import com.example.Car.Services.expection.BadRequestException;
 import com.example.Car.Services.expection.ResourceNotFoundException;
 import com.example.Car.Services.service.common.EmailService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +39,7 @@ public class GarageTechnicianService
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final GarageRepository garageRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     @Override
@@ -60,6 +64,7 @@ public class GarageTechnicianService
         if (userRepository.existsByEmail(
                 request.getEmail()
         )) {
+
             throw new BadRequestException(
                     "Email is already registered!"
             );
@@ -68,6 +73,7 @@ public class GarageTechnicianService
         if (userRepository.existsByPhone(
                 request.getPhone()
         )) {
+
             throw new BadRequestException(
                     "Phone Number is already registered!"
             );
@@ -96,10 +102,21 @@ public class GarageTechnicianService
                 request.getPhone()
         );
 
-        technicianUser.setActive(false);
-
         technicianUser.setRole(
                 Role.TECHNICIAN
+        );
+
+        technicianUser.setActive(false);
+
+        technicianUser.setEmailVerified(false);
+
+        String temporaryPassword =
+                UUID.randomUUID().toString();
+
+        technicianUser.setPassword(
+                passwordEncoder.encode(
+                        temporaryPassword
+                )
         );
 
         technicianUser.setPasswordResetToken(
@@ -108,6 +125,14 @@ public class GarageTechnicianService
 
         technicianUser.setPasswordResetTokenExpiry(
                 Instant.now().plusSeconds(86400)
+        );
+
+        technicianUser.setCreatedAt(
+                Instant.now()
+        );
+
+        technicianUser.setUpdatedAt(
+                Instant.now()
         );
 
         userRepository.save(
@@ -227,6 +252,7 @@ public class GarageTechnicianService
         if (Boolean.FALSE.equals(
                 technician.getUser().getActive()
         )) {
+
             throw new BadRequestException(
                     "Technician account is already deactivated!"
             );
@@ -236,7 +262,13 @@ public class GarageTechnicianService
                 .getUser()
                 .setActive(false);
 
-        technician.setIsAvailable(false);
+        technician.setIsAvailable(
+                false
+        );
+
+        technician.getUser().setUpdatedAt(
+                Instant.now()
+        );
 
         userRepository.save(
                 technician.getUser()
@@ -279,6 +311,7 @@ public class GarageTechnicianService
         if (Boolean.TRUE.equals(
                 technician.getUser().getActive()
         )) {
+
             throw new BadRequestException(
                     "Technician account is already active!"
             );
@@ -288,7 +321,13 @@ public class GarageTechnicianService
                 .getUser()
                 .setActive(true);
 
-        technician.setIsAvailable(true);
+        technician.setIsAvailable(
+                true
+        );
+
+        technician.getUser().setUpdatedAt(
+                Instant.now()
+        );
 
         userRepository.save(
                 technician.getUser()
