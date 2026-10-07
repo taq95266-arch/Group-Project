@@ -1,6 +1,5 @@
 package com.example.Car.Services.config;
 
-
 import com.example.Car.Services.Security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -19,24 +18,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
 
-
     @Autowired
-
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private static final String[] PUBLIC_ENDPOINT = {
-
             "/api/auth/**",
             "/api/stripe/webhook",
             "/api/owner/registration/**",
             "/ws-tracking/**",
-            "/api/customer/**",
-
+            "/api/customer/**"
     };
 
-    private static final  String[] ADMIN_ENDPOINTS = {
+    private static final String[] ADMIN_ENDPOINTS = {
             "/api/admin/**",
-            "/api/admin/registration-documents",
+            "/api/admin/registration-documents"
     };
 
     private static final String[] OWNER_ENDPOINTS = {
@@ -44,15 +39,12 @@ public class SecurityConfig {
     };
 
     private static final String[] TECHNICIAN_ENDPOINTS = {
-            "/api/techician/**"
+            "/api/technician/**"
     };
 
-
-
-
     @Bean
-    public PasswordEncoder passwordEncoder(){
-        return  new BCryptPasswordEncoder();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -64,14 +56,14 @@ public class SecurityConfig {
                         .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")
                         .requestMatchers(OWNER_ENDPOINTS).hasRole("GARAGE_OWNER")
                         .requestMatchers(TECHNICIAN_ENDPOINTS).hasRole("TECHNICIAN")
-
-
                         .anyRequest().authenticated())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class );
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
-            return http.build();
+        return http.build();
     }
-
-
 }
