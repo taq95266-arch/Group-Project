@@ -4,17 +4,22 @@ import com.example.Car.Services.DTO.request.CreateSubscriptionRequest;
 import com.example.Car.Services.Repository.GarageRepository;
 import com.example.Car.Services.Repository.OwnerSubscriptionRepository;
 import com.example.Car.Services.Repository.SubscriptionPlanRepository;
-import com.example.Car.Services.Repository.UserRepository;
 import com.example.Car.Services.entities.Garage;
 import com.example.Car.Services.entities.OWNER_SUBSCRIPTION;
 import com.example.Car.Services.entities.SubscriptionPlan;
 import com.example.Car.Services.entities.User;
+import com.example.Car.Services.enums.SubscriptionStatus;
+import com.example.Car.Services.expection.BadRequestException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,7 +32,11 @@ public class GarageOwnerSubscriptionService {
     private final OwnerSubscriptionRepository ownerSubscriptionRepository;
     private final StripeSubscriptionService stripeSubscriptionService;
 
-    @org.springframework.transaction.annotation.Transactional
+
+
+
+
+    @Transactional
     public String createSubscription(CreateSubscriptionRequest request) throws Exception {
 
         Authentication authentication =
@@ -44,6 +53,21 @@ public class GarageOwnerSubscriptionService {
         if (!garage.getOwnerId().equals(owner.getId())) {
             throw new RuntimeException("This garage does not belong to you");
         }
+
+        Optional<OWNER_SUBSCRIPTION> activeSubscription =
+                ownerSubscriptionRepository.findByGarageIdAndStatus(
+                        garage.getId(),
+                        SubscriptionStatus.ACTIVE
+                );
+
+        if (activeSubscription.isPresent()
+                && activeSubscription.get().getEndDate().isAfter(Instant.now())) {
+
+            throw new BadRequestException(
+                    "This garage already has an active subscription"
+            );
+        }
+
 
         SubscriptionPlan plan = subscriptionPlanRepository.findById(request.getPlanId())
                 .orElseThrow(() -> new RuntimeException("Subscription plan not found"));
@@ -77,6 +101,29 @@ public class GarageOwnerSubscriptionService {
         subscription.setEndDate(endDate);
         subscription.setCreatedAt(startDate);
 
+        if (subscription.getAmount().signum() == 0) {
+            subscription.setPaymentStatus("FREE");
+            subscription.setStatus(SubscriptionStatus.ACTIVE);
+            ownerSubscriptionRepository.save(subscription);
+            return null;
+        }
+
         return stripeSubscriptionService.createCheckoutSession(subscription);
     }
+
+
+
+
+    @Scheduled(fixedRate = 3600000)
+    @Transactional
+    public void expireSubscriptions() {
+        List<OWNER_SUBSCRIPTION> subscriptions = ownerSubscriptionRepository
+           .findByStatusAndEndDateBefore(SubscriptionStatus.ACTIVE, Instant.now());
+        for (OWNER_SUBSCRIPTION subscription : subscriptions) {
+            subscription.setStatus(SubscriptionStatus.EXPIRED);
+            ownerSubscriptionRepository.save(subscription);
+        }
+    }
+
+
 }

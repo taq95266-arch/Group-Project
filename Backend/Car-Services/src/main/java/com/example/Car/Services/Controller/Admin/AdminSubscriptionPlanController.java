@@ -38,7 +38,7 @@ public class AdminSubscriptionPlanController {
         return ResponseEntity.ok(plans);
     }
 
-    @GetMapping("/getById")
+    @GetMapping("/id")
     public ResponseEntity<SubscriptionPlanResponse> getPlanById(
             @RequestParam Long id) {
 
