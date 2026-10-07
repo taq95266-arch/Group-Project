@@ -4,10 +4,13 @@ package com.example.Car.Services.service.GarageOwner;
 import com.example.Car.Services.DTO.request.NewGarageRequestDTO;
 import com.example.Car.Services.DTO.response.GarageResponseDTO;
 import com.example.Car.Services.DTO.response.MessageResponse;
+import com.example.Car.Services.DTO.response.PageResponse;
+import com.example.Car.Services.DTO.response.RegistrationDocumentResponse;
 import com.example.Car.Services.Interface.GarageOwner.GarageServiceInterface;
 import com.example.Car.Services.Repository.GarageRepository;
 import com.example.Car.Services.Repository.RegistrationDocumentRepository;
 import com.example.Car.Services.Repository.UserRepository;
+import com.example.Car.Services.Utils.PaginationUtils;
 import com.example.Car.Services.entities.Garage;
 import com.example.Car.Services.entities.RegistrationDocument;
 import com.example.Car.Services.entities.User;
@@ -19,11 +22,13 @@ import com.example.Car.Services.service.common.EmailService;
 import com.example.Car.Services.service.common.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.Car.Services.dto.garageOwner.GarageRequestDTO;
 
 import java.time.Instant;
 import java.util.List;
@@ -50,6 +55,17 @@ public class GarageService implements GarageServiceInterface {
         log.info("Found {} garages for owner ID: {}", garages.size(), ownerId);
         return GarageResponseDTO.convertToList(garages);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<GarageResponseDTO> getOwnerActiveGarages(Long ownerId) {
+        log.info("Fetching active garages for owner ID: {}", ownerId);
+        List<Garage> garages = garageRepository.findByOwnerIdAndStatus(ownerId, GarageStatus.ACTIVE);
+        log.info("Found {} active garages for owner ID: {}", garages.size(), ownerId);
+        return GarageResponseDTO.convertToList(garages);
+    }
+
+
 
     @Transactional
     @Override
@@ -109,9 +125,28 @@ public class GarageService implements GarageServiceInterface {
     }
 
 
+    @Transactional(readOnly = true)
+    @Override
+    public PageResponse<RegistrationDocumentResponse> getOwnerGaragesReqisterDocumention(
+            Long ownerId, int page, int size) {
+        log.info("Fetching garage registration documents for owner: {}", ownerId);
+        Pageable pageable = PaginationUtils.createPageRequest(page, size);
+
+        Page<RegistrationDocument> documents = documentRepository.findByOwnerId(ownerId, pageable);
+
+        log.info("Successfully fetched {} registration documents for owner {}",
+                documents.getNumberOfElements(), ownerId);
+
+        return PaginationUtils.toPageResponse(
+                documents,
+                RegistrationDocumentResponse::fromEntity
+        );
+    }
 
 
 
 
 
-}
+
+    }
+

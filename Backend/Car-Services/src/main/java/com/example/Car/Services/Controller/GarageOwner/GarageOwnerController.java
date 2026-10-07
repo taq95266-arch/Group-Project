@@ -3,6 +3,8 @@ package com.example.Car.Services.Controller.GarageOwner;
 import com.example.Car.Services.DTO.request.NewGarageRequestDTO;
 import com.example.Car.Services.DTO.response.GarageResponseDTO;
 import com.example.Car.Services.DTO.response.MessageResponse;
+import com.example.Car.Services.DTO.response.PageResponse;
+import com.example.Car.Services.DTO.response.RegistrationDocumentResponse;
 import com.example.Car.Services.Interface.GarageOwner.GarageServiceInterface;
 import com.example.Car.Services.entities.User;
 import jakarta.validation.Valid;
@@ -73,9 +75,24 @@ public class GarageOwnerController {
 
 
 
+    @GetMapping("register-document/{ownerId}")
+    public ResponseEntity<PageResponse<RegistrationDocumentResponse>> getOwnerGarages(
+            @PathVariable Long ownerId,
+            @RequestParam int page,
+            @RequestParam int size) {
+        PageResponse<RegistrationDocumentResponse> garages = garageService.getOwnerGaragesReqisterDocumention(ownerId, page, size);
+        return ResponseEntity.ok(garages);
+    }
 
 
+    @GetMapping("/owner/{ownerId}/active")
+    public ResponseEntity<List<GarageResponseDTO>> getOwnerActiveGarages(
+            @PathVariable Long ownerId) {
 
+        return ResponseEntity.ok(
+                garageService.getOwnerActiveGarages(ownerId)
+        );
+    }
 
 
 

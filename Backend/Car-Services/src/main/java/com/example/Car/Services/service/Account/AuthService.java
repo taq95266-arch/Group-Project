@@ -94,7 +94,7 @@ public class AuthService implements AuthServiceInterface {
             throw new BadRequestException("Please verify your email adderss before loggin in. Check your inbox for the verification link");
         }
         final String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());        log.info("Login successful for email: {} with Role: {}", user.getEmail(), user.getRole().name());
-        return new LoginResponse(user.getEmail(),user.getFullName(),user.getRole().name());
+        return new LoginResponse(user.getEmail(),user.getFullName(),user.getRole().name(),token);
     }
 
 
@@ -199,7 +199,12 @@ public class AuthService implements AuthServiceInterface {
     @Override
     public LoginResponse currentUser(String email) {
         User user = serviceUtils.getUserByEmailOrThrow(email);
-        return new LoginResponse(user.getEmail(), user.getFullName(), user.getRole().name());
+        return new LoginResponse(
+                user.getEmail(),
+                user.getFullName(),
+                user.getRole().name(),
+                null
+        );
     }
 
 

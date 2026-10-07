@@ -1,5 +1,6 @@
 package com.example.Car.Services.entities;
 
+import com.example.Car.Services.enums.SubscriptionStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,4 +58,8 @@ public class OWNER_SUBSCRIPTION {
     private Instant createdAt;
 
     private Instant paidAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SubscriptionStatus status;
 }

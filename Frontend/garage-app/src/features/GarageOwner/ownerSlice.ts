@@ -1,33 +1,23 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import agent from "../../app/api/agent";
-import type { RegisterDocumnet } from "../../app/models/RegisterDocumnet";
+import type { MessageResponse } from "../../app/models/Common";
+import { toAppError } from "../../app/utils/error";
 
 interface OwnerState {
-  status: string;
+  status: "idle" | "registeringOwner";
 }
 
-const initialState: OwnerState = {
-  status: "idle",
-};
+const initialState: OwnerState = { status: "idle" };
 
-
-
-export const registerOwnerAsync = createAsyncThunk<RegisterDocumnet, FormData>(
-  "owner/registerOwnerAsync",
+export const registerOwnerAsync = createAsyncThunk<MessageResponse, FormData, { rejectValue: string }>(
+  "owner/registerOwner",
   async (formData, thunkAPI) => {
     try {
-      const response = await agent.Owner.registerDocumnet(formData);
-      return response;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      const message =
-        error.response?.data?.error ||
-        error.response?.data?.message ||
-        error.message ||
-        "An unexpected error occurred during garage registration";
-      return thunkAPI.rejectWithValue({ error: message });
+      return await agent.Registration.registerOwner(formData);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(toAppError(error).message);
     }
-  }
+  },
 );
 
 export const ownerSlice = createSlice({
@@ -47,5 +37,3 @@ export const ownerSlice = createSlice({
       });
   },
 });
-
-export const ownerReducer = ownerSlice.reducer;

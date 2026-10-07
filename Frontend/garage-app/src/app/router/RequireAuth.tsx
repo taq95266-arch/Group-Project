@@ -1,51 +1,24 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAppSelector } from "../../store/configureStore";
-import { toast } from "react-toastify";
-import { useEffect } from "react";
-
+import type { Role } from "../models/enums";
+import { isTokenExpired } from "../utils/jwt";
+import { paths } from "../utils/paths";
 
 interface Props {
-    roles?: string[];
+  roles?: Role[];
 }
+
 export default function RequireAuth({ roles }: Props) {
+  const user = useAppSelector((state) => state.account.user);
+  const location = useLocation();
 
-    const { user } = useAppSelector(state => state.account);
-
-    const location = useLocation();
-
-const userRoles: string[] = user?.roles 
-    ? user.roles 
-    : user?.role 
-    ? [user.role] 
-    : [];
-
-
-    const hasRequiredRole = roles 
-    ? roles.some((role) => userRoles.includes(role))
-    : true;
-
-
-
-    useEffect(() => {
-    if (user && roles && !hasRequiredRole) {
-      toast.error("Not authorised to access this area");
-    }
-  }, [user, roles, hasRequiredRole]);
-
-
-  if (status?.includes("pending") || status === "loading") {
-    return <div>Loading...</div>;
+  if (!user || isTokenExpired(user.token)) {
+    return <Navigate to={paths.login} state={{ from: location }} replace />;
   }
 
-    if (!user) {
-        return <Navigate to='/login' state={{from: location}} />
-    }
+  if (roles && !roles.includes(user.role)) {
+    return <Navigate to={paths.unauthorized} replace />;
+  }
 
-    if (roles && !roles?.some(r => user.role?.includes(r))) {
-        toast.error('Not authorised to access this area');
-        return <Navigate to='/login' />
-    }
-
-    return <Outlet />
-
+  return <Outlet />;
 }

@@ -1,6 +1,7 @@
 package com.example.Car.Services.Controller.GarageOwner;
 
 import com.example.Car.Services.Repository.OwnerSubscriptionRepository;
+import com.example.Car.Services.enums.SubscriptionStatus;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.model.checkout.Session;
@@ -50,6 +51,7 @@ public class StripeWebhookController {
                             }
 
                             subscription.setPaymentStatus("PAID");
+                            subscription.setStatus(SubscriptionStatus.ACTIVE);
                             subscription.setPaidAt(Instant.now());
 
                             if (session.getPaymentIntent() != null) {
