@@ -22,6 +22,10 @@ public class TechnicianAssignment {
     private Long assignmentId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "request_id", nullable = false)
+    private ServiceCustomerRequest serviceRequest;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "technician_id", nullable = false)
     private Technician technician;
 
