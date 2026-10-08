@@ -1,16 +1,21 @@
 package com.example.Car.Services.service.Service;
 
 import com.example.Car.Services.DTO.request.ServiceOptionRequest;
+import com.example.Car.Services.DTO.response.CustomerGarageResponse;
 import com.example.Car.Services.DTO.response.ServiceOptionResponse;
 import com.example.Car.Services.DTO.request.ServiceRequest;
 import com.example.Car.Services.DTO.response.ServiceResponse;
+import com.example.Car.Services.Repository.GarageServiceOptionRepository;
 import com.example.Car.Services.Repository.ServiceOptionRepository;
 import com.example.Car.Services.Repository.ServiceRepository;
+import com.example.Car.Services.entities.GarageServiceOption;
 import com.example.Car.Services.entities.Service;
 import com.example.Car.Services.entities.ServiceOption;
+import com.example.Car.Services.enums.SubscriptionStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
 
 @org.springframework.stereotype.Service
@@ -18,15 +23,17 @@ public class ServiceCatalogService {
 
     private final ServiceRepository serviceRepository;
     private final ServiceOptionRepository optionRepository;
+    private final GarageServiceOptionRepository garageServiceOptionRepository;
 
     public ServiceCatalogService(
             ServiceRepository serviceRepository,
-            ServiceOptionRepository optionRepository
+            ServiceOptionRepository optionRepository,
+            GarageServiceOptionRepository garageServiceOptionRepository
     ) {
         this.serviceRepository = serviceRepository;
         this.optionRepository = optionRepository;
+        this.garageServiceOptionRepository = garageServiceOptionRepository;
     }
-
     public ServiceResponse createService(ServiceRequest request) {
         String name = requiredText(request.name(), "Service name");
 
@@ -196,4 +203,17 @@ public class ServiceCatalogService {
 //                option.getPrice()
         );
     }
+
+
+
+    public List<CustomerGarageResponse> getGaragesByService(Long serviceId) {
+
+        List<GarageServiceOption> options =
+                garageServiceOptionRepository.findAvailableGaragesByService(
+                        serviceId,
+                        SubscriptionStatus.ACTIVE,
+                        Instant.now());
+        return CustomerGarageResponse.convertToList(options);
+    }
+
 }

@@ -54,5 +54,9 @@ public interface EmailServiceInterface {
             String fullName,
             boolean active
     );
-}
 
+
+    void sendTrackingEmail(String toEmail, String fullName, String trackingLink);
+
+
+}

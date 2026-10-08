@@ -576,4 +576,45 @@ public class EmailService implements EmailServiceInterface {
             );
         }
     }
+
+
+
+
+
+    @Override
+    @Async
+    public void sendTrackingEmail(String toEmail, String fullName, String trackingLink) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+
+            message.setSubject("Car Services - Track Your Technician");
+
+            String emailBody =
+                    "Dear " + fullName + ",\n\n"
+                            + "Your service request has been accepted "
+                            + "and a technician has been assigned to you.\n\n"
+                            + "You can track your technician's location "
+                            + "and service status using the link below:\n\n"
+                            + trackingLink + "\n\n"
+                            + "You do not need to log in to track your request.\n\n"
+                            + "Best regards,\n"
+                            + "Car Services Team";
+
+            message.setText(emailBody);
+            mailSender.send(message);
+            log.info("Tracking email sent to {}", toEmail);
+
+        } catch (Exception ex) {
+            log.error("Failed to send tracking email to {}", toEmail, ex);
+
+            throw new EmailSendingException("Failed to send tracking email");
+        }
+    }
+
+
+
+
+
 }

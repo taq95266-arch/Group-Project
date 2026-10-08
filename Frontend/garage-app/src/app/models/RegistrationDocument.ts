@@ -16,7 +16,6 @@ export interface OwnerRegistrationRequest {
   mapAddress?: string;
 }
 
-/** Backend `RegistrationDocumentResponse`. */
 export interface RegistrationDocument {
   id: number;
   ownerName: string;
@@ -31,7 +30,6 @@ export interface RegistrationDocument {
   status: RequestStatus;
 }
 
-/** Backend `DecisionRequestDTO`. */
 export interface DecisionRequest {
   status: RequestStatus;
   reason?: string;

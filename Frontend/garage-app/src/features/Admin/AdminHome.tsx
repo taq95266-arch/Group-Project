@@ -57,6 +57,9 @@ export default function AdminHome() {
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <StatCard icon={<PeopleIcon fontSize="large" />} label={t("menu.users")} value={t("adminHome.manage")} to={paths.adminUsers} />
         </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+       <StatCard icon={<DescriptionIcon fontSize="large" />} label={t("menu.subscriptionPlans")} value={t("adminHome.manage")}to={paths.adminSubscriptionPlans} />
+     </Grid>
       </Grid>
     </>
   );

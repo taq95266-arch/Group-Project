@@ -187,5 +187,15 @@
   "location.useMine": "Use my location",
   "location.send": "Send location",
   "location.unsupported": "Your browser does not support geolocation.",
-  "location.denied": "Could not get your location. Check the browser permission."
+  "location.denied": "Could not get your location. Check the browser permission.",
+  "adminSubscriptionPlans.title" :"Subscription Plan",
+  "adminSubscriptionPlans.subtitle":"admin Manage SubscriptionPlans",
+  "adminSubscriptionPlans.active" : "active",
+  "ServiceOptions":"Service Options",
+  "ManageGarageServices" : "Manage the services and prices available in your garage",
+  "menu.GarageAddServicePrice": "Add Service Price",
+  "menu.ownerServiceCustomerRequest": "Service Requests"
+
+
+
 }

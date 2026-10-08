@@ -33,6 +33,11 @@ import OwnerRegistrationDocuments from "../../features/GarageOwner/OwnerRegistra
 import SubscriptionPlans from "../../features/Subscriptions/SubscriptionPlans";
 import PaymentSuccess from "../../features/Subscriptions/PaymentSuccess";
 import PaymentCancel from "../../features/Subscriptions/PaymentCancel";
+import AdminSubscriptionPlans from "../../features/Admin/AdminSubscriptionPlans";
+import GarageServiceOptions from "../../features/GarageOwner/GarageServiceOptions";
+import CustomerGaragesPage from "../../features/Customer/CustomerGaragesPage";
+import OwnerServiceRequests from "../../features/GarageOwner/OwnerServiceRequests";
+import CustomerTracking from "../../features/Customer/CustomerTracking";
 
 export const router = createBrowserRouter([
   {
@@ -40,7 +45,6 @@ export const router = createBrowserRouter([
     element: <App />,
     errorElement: <ServerError />,
     children: [
-      // ---- public ---------------------------------------------------------------------
       {
         element: <PublicLayout />,
         children: [
@@ -54,10 +58,11 @@ export const router = createBrowserRouter([
           { path: "reset-password", element: <ResetPassword /> },
           { path: "set-password", element: <SetPassword /> },
           { path: "unauthorized", element: <Unauthorized /> },
+          {path: "/garages/:serviceId",element: <CustomerGaragesPage />,},
+          {path: "/track/:trackingToken",element: <CustomerTracking />,},
         ],
       },
 
-      // ---- authenticated (dashboard shell) --------------------------------------------
       {
         element: <RequireAuth />,
         children: [
@@ -66,15 +71,24 @@ export const router = createBrowserRouter([
             children: [
               { path: "dashboard", element: <DashboardRedirect /> },
               { path: "account/change-password", element: <ChangePassword /> },
-
               {
                 element: <RequireAuth roles={[Role.ADMIN]} />,
                 children: [
                   { path: "admin/dashboard", element: <AdminHome /> },
-                  { path: "admin/registration-documents", element: <RegistrationDocuments /> },
+                  {
+                    path: "admin/registration-documents",
+                    element: <RegistrationDocuments />,
+                  },
                   { path: "admin/users", element: <Users /> },
                   { path: "admin/services", element: <Services /> },
-                  { path: "admin/services/:serviceId/options", element: <ServiceOptions /> },
+                  {
+                    path: "admin/adminSubscriptionPlans",
+                    element: <AdminSubscriptionPlans />,
+                  },
+                  {
+                    path: "admin/services/:serviceId/options",
+                    element: <ServiceOptions />,
+                  },
                 ],
               },
               {
@@ -83,12 +97,25 @@ export const router = createBrowserRouter([
                   { path: "owner/dashboard", element: <OwnerHome /> },
                   { path: "owner/garages", element: <MyGarages /> },
                   { path: "owner/garages/request", element: <RequestGarage /> },
-                  { path: "owner/garages/register-document", element: <OwnerRegistrationDocuments /> },
-                  { path: "owner/garages/subscriptions", element: <SubscriptionPlans /> },
-                  { path: "owner/garages/:garageId/technicians", element: <GarageTechnicians /> },
+                  { path: "owner/garages/serviceRequests", element: <OwnerServiceRequests /> },
+                  {
+                    path: "owner/garages/register-document",
+                    element: <OwnerRegistrationDocuments />,
+                  },
+                  {
+                    path: "owner/garages/subscriptions",
+                    element: <SubscriptionPlans />,
+                  },
+                  {
+                    path: "owner/garages/:garageId/technicians",
+                    element: <GarageTechnicians />,
+                  },
                   { path: "payment-success", element: <PaymentSuccess /> },
-                  {path: "/payment-cancel",element: <PaymentCancel />,},
-
+                  { path: "/payment-cancel", element: <PaymentCancel /> },
+                  {
+                    path: "owner/garages/services",
+                    element: <GarageServiceOptions />,
+                  },
                 ],
               },
               {
@@ -96,6 +123,7 @@ export const router = createBrowserRouter([
                 children: [
                   { path: "technician/dashboard", element: <TechnicianHome /> },
                   { path: "technician/location", element: <ShareLocation /> },
+                  
                 ],
               },
             ],

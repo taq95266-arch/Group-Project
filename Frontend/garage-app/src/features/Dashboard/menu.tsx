@@ -25,6 +25,7 @@ export function menuForRole(role: Role): DashboardMenuItem[] {
         { labelKey: "menu.registrationDocuments", path: paths.adminDocuments, icon: <DescriptionIcon /> },
         { labelKey: "menu.users", path: paths.adminUsers, icon: <PeopleIcon /> },
         { labelKey: "menu.services", path: paths.adminServices, icon: <BuildIcon />, matchPrefix: true },
+        { labelKey: "menu.subscriptionPlans", path: paths.adminSubscriptionPlans, icon: <BuildIcon />, matchPrefix: true },
       ];
     case Role.GARAGE_OWNER:
       return [
@@ -32,8 +33,9 @@ export function menuForRole(role: Role): DashboardMenuItem[] {
         { labelKey: "menu.myGarages", path: paths.ownerGarages, icon: <GarageIcon /> },
         { labelKey: "menu.requestGarage", path: paths.ownerRequestGarage, icon: <AddBusinessIcon /> },
         { labelKey: "menu.requestGarageRegisterDoc", path: paths.ownerGaragesrRegisterDocument, icon: <ListAltTwoTone /> },
-        {labelKey: "menu.subscriptionPlans",path: paths.ownerSubscriptions,icon: <ListAltTwoTone />,
-},
+        {labelKey: "menu.subscriptionPlans",path: paths.ownerSubscriptions,icon: <ListAltTwoTone />,},
+         {labelKey: "menu.GarageAddServicePrice",path: paths.ownerServiceOptions,icon: <ListAltTwoTone />,},
+         {labelKey: "menu.ownerServiceCustomerRequest",path: paths.ownerServiceCustomerRequest,icon: <ListAltTwoTone />,},
       ];
     case Role.TECHNICIAN:
       return [

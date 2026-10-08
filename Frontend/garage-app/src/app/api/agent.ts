@@ -11,6 +11,11 @@ import type {ServiceItem,ServiceOption, ServiceOptionRequest, ServiceRequest,} f
 
 import { clearStoredUser } from "../utils/authStorage";
 import type { CreateSubscriptionRequest, SubscriptionPlan } from "../models/Subscription";
+import type { GarageServiceOption, GarageServiceOptionRequest } from "../models/GarageServiceOption";
+import type { CustomerGarage } from "../models/CustomerGarage";
+import type { ServiceCustomerRequest } from "../models/ServiceCustomerRequest";
+import type { CustomerTrackingResponse } from "../models/CustomerTrackingResponse";
+import type { TechnicianAssignment } from "../models/TechnicianAssignment";
 
 axios.defaults.baseURL = "http://localhost:8080/api/";
 axios.defaults.withCredentials = false;
@@ -132,10 +137,13 @@ const AdminSubscriptionPlans = {
   getAll: () =>requests.get<SubscriptionPlan[]>("admin/subscription-plans"),
   getById: (id: number) =>requests.get<SubscriptionPlan>(`admin/subscription-plans/${id}`),
   create: (data: Omit<SubscriptionPlan, "id" | "active">) => requests.post<SubscriptionPlan>("admin/subscription-plans",data),
-
   update: (id: number,data: Omit<SubscriptionPlan, "id" | "active">) =>requests.put<SubscriptionPlan>(`admin/subscription-plans/${id}`,data),
+changeStatus: (id: number, active: boolean) =>requests.patch<void>(`admin/subscription-plans/${id}/status?active=${active}`),
 
-changeStatus: (id: number, active: boolean) =>requests.patch<void>(`admin/subscription-plans/${id}/status?active=${active}`),};
+};
+
+
+
 
 const Technicians = {
   listByGarage: (garageId: number) =>
@@ -228,18 +236,73 @@ const Catalog = {
     requests.delete(
       `services/${serviceId}/options/${optionId}`
     ),
+  garagesByService: (serviceId: number) => requests.get<CustomerGarage[]>( `/services/${serviceId}/garages`),
+
 };
 
 const Assignments = {
-  updateLocation: (
-    assignmentId: number,
-    values: LocationUpdateRequest
+  getMyAssignments: () =>requests.get<TechnicianAssignment[]>("technician/assignments"),
+
+  updateLocation: (assignmentId: number,values: LocationUpdateRequest) =>requests.post<MessageResponse>(`assignments/${assignmentId}/location`,values),
+};
+
+const GarageServiceOptions = {
+  list: (garageId: number) =>
+    requests.get<GarageServiceOption[]>(
+      `owner/garages/${garageId}/service-options`
+    ),
+
+  create: (
+    garageId: number,
+    values: GarageServiceOptionRequest
   ) =>
     requests.post<MessageResponse>(
-      `assignments/${assignmentId}/location`,
+      `owner/garages/${garageId}/service-options`,
+      values
+    ),
+
+  update: (
+    garageId: number,
+    garageOptionId: number,
+    values: GarageServiceOptionRequest
+  ) =>
+    requests.put<MessageResponse>(
+      `owner/garages/${garageId}/service-options/${garageOptionId}`,
       values
     ),
 };
+
+
+const Customer = { createServiceRequest: (values: { garageOptionId: number;
+    guestName: string;
+    guestEmail: string;
+    guestPhone: string;
+    carMakeModel: string;
+    carPlateNumber: string;
+    latitude: number;
+    longitude: number;}) =>
+    requests.post(
+      "customer/service-request",
+      values
+    ),
+};
+
+
+const ServiceRequests = 
+{
+   getOwnerRequests: () => requests.get<ServiceCustomerRequest[]>( "customer/service-request/owner" ), 
+   acceptRequest: (requestId: number) => requests.put<ServiceCustomerRequest>( `customer/service-request/owner/${requestId}/accept` ), 
+   getTechnicians: (garageId: number) => requests.get<Technician[]>( `owner/garages/${garageId}/technicians` ), 
+   assignTechnician: (requestId: number, technicianId: number) => requests.post( "owner/assignments", { requestId, technicianId, } ), };
+
+
+const Tracking = {
+    getTracking: (trackingToken: string) =>
+        requests.get<CustomerTrackingResponse>(
+            `tracking/${trackingToken}`
+        ),
+};
+
 
 const agent = {
   Account,
@@ -251,7 +314,11 @@ const agent = {
   Assignments,
   Subscriptions,
   SubscriptionPlans,
-  AdminSubscriptionPlans
+  AdminSubscriptionPlans,
+  GarageServiceOptions,
+  Customer,
+  ServiceRequests,
+  Tracking
 };
 
 export default agent;

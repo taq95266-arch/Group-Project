@@ -1,93 +1,405 @@
-import { useState } from "react";
-import { Alert, Box, Container, Grid, Paper } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
+/* eslint-disable react-hooks/immutability */
+import { useEffect, useState } from "react";
+
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Container,
+  Stack,
+  Typography,
+} from "@mui/material";
+
 import MyLocationIcon from "@mui/icons-material/MyLocation";
-import { useForm } from "react-hook-form";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import PhoneIcon from "@mui/icons-material/Phone";
+
 import { useTranslation } from "react-i18next";
+
 import agent from "../../app/api/agent";
-import AppTextInput from "../../app/components/AppTextInput";
 import PageHeader from "../../app/components/PageHeader";
 import { toAppError } from "../../app/utils/error";
-import { notifyError, notifySuccess } from "../../app/utils/notify";
-import { rules } from "../../app/utils/validation";
+import {
+  notifyError,
+  notifySuccess,
+} from "../../app/utils/notify";
 
-interface Form {
-  assignmentId: string;
-  latitude: string;
-  longitude: string;
-}
+import type { TechnicianAssignment } from "../../app/models/TechnicianAssignment";
 
 export default function ShareLocation() {
   const { t } = useTranslation();
-  const [locating, setLocating] = useState(false);
-  const { handleSubmit, control, setValue, formState: { isSubmitting } } = useForm<Form>({ mode: "onTouched" });
-  const r = rules(t);
 
-  const useMyLocation = () => {
+  const [assignments, setAssignments] = useState<
+    TechnicianAssignment[]
+  >([]);
+
+  const [loading, setLoading] = useState(true);
+
+  const [locatingAssignmentId, setLocatingAssignmentId] =
+    useState<number | null>(null);
+
+  const [sendingAssignmentId, setSendingAssignmentId] =
+    useState<number | null>(null);
+
+  useEffect(() => {
+    loadAssignments();
+  }, []);
+
+  const loadAssignments = async () => {
+    try {
+      setLoading(true);
+
+      const response =
+        await agent.Assignments.getMyAssignments();
+
+      setAssignments(response);
+    } catch (error) {
+      notifyError(
+        t,
+        toAppError(error).message
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const shareLocation = (
+    assignment: TechnicianAssignment
+  ) => {
     if (!navigator.geolocation) {
-      notifyError(t, t("location.unsupported"));
+      notifyError(
+        t,
+        "Location is not supported by your browser."
+      );
       return;
     }
-    setLocating(true);
+
+    setLocatingAssignmentId(
+      assignment.assignmentId
+    );
+
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setValue("latitude", position.coords.latitude.toFixed(7), { shouldValidate: true });
-        setValue("longitude", position.coords.longitude.toFixed(7), { shouldValidate: true });
-        setLocating(false);
+      async (position) => {
+        const latitude =
+          position.coords.latitude;
+
+        const longitude =
+          position.coords.longitude;
+
+        setLocatingAssignmentId(null);
+
+        try {
+          setSendingAssignmentId(
+            assignment.assignmentId
+          );
+
+          const response =
+            await agent.Assignments.updateLocation(
+              assignment.assignmentId,
+              {
+                latitude,
+                longitude,
+              }
+            );
+
+          notifySuccess(response.message);
+
+          await loadAssignments();
+        } catch (error) {
+          notifyError(
+            t,
+            toAppError(error).message
+          );
+        } finally {
+          setSendingAssignmentId(null);
+        }
       },
       () => {
-        setLocating(false);
-        notifyError(t, t("location.denied"));
+        setLocatingAssignmentId(null);
+
+        notifyError(
+          t,
+          "Unable to get your location. Please allow location permission."
+        );
       },
-      { enableHighAccuracy: true, timeout: 15000 },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0,
+      }
     );
   };
 
-  async function submitForm(values: Form) {
-    const assignmentId = Number(values.assignmentId);
-    try {
-      const response = await agent.Assignments.updateLocation(assignmentId, {
-        assignmentId,
-        latitude: Number(values.latitude),
-        longitude: Number(values.longitude),
-      });
-      notifySuccess(response.message);
-    } catch (error) {
-      notifyError(t, toAppError(error).message);
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "ASSIGNED":
+        return "Assigned";
+
+      case "PREPARING":
+        return "Preparing";
+
+      case "ON_THE_WAY":
+        return "On the way";
+
+      case "ARRIVED":
+        return "Arrived";
+
+      case "COMPLETED":
+        return "Completed";
+
+      case "CANCELLED":
+        return "Cancelled";
+
+      default:
+        return status;
     }
-  }
+  };
+
+  const getStatusColor = (
+    status: string
+  ):
+    | "default"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "error"
+    | "warning" => {
+    switch (status) {
+      case "ASSIGNED":
+        return "primary";
+
+      case "PREPARING":
+        return "warning";
+
+      case "ON_THE_WAY":
+        return "secondary";
+
+      case "ARRIVED":
+        return "success";
+
+      case "COMPLETED":
+        return "success";
+
+      case "CANCELLED":
+        return "error";
+
+      default:
+        return "default";
+    }
+  };
 
   return (
-    <>
-      <PageHeader title={t("menu.shareLocation")} subtitle={t("location.subtitle")} />
-      <Container component={Paper} maxWidth="sm" sx={{ p: 4, mx: 0 }}>
-        <Alert severity="info" sx={{ mb: 2 }}>{t("location.notice")}</Alert>
-        <Box component="form" onSubmit={handleSubmit(submitForm)} noValidate>
-          <AppTextInput
-            name="assignmentId"
-            control={control}
-            label={t("fields.assignmentId")}
-            type="number"
-            rules={r.positiveNumber}
-          />
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <AppTextInput name="latitude" control={control} label={t("fields.latitude")} type="number" rules={r.latitude} slotProps={{ htmlInput: { step: "any" } }} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <AppTextInput name="longitude" control={control} label={t("fields.longitude")} type="number" rules={r.longitude} slotProps={{ htmlInput: { step: "any" } }} />
-            </Grid>
-          </Grid>
-          <Box sx={{ display: "flex", gap: 2, mt: 2, flexWrap: "wrap" }}>
-            <LoadingButton loading={locating} variant="outlined" startIcon={<MyLocationIcon />} onClick={useMyLocation}>
-              {t("location.useMine")}
-            </LoadingButton>
-            <LoadingButton loading={isSubmitting} type="submit" variant="contained">
-              {t("location.send")}
-            </LoadingButton>
+    <Container maxWidth="lg">
+      <PageHeader
+        title="Share Location"
+        subtitle="View your assigned tasks and share your location for each task."
+      />
+
+      <Box sx={{ mt: 3 }}>
+        <Typography
+          variant="h5"
+          sx={{
+            mb: 2,
+            fontWeight: 700,
+          }}
+        >
+          My Tasks
+        </Typography>
+
+        {loading ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              py: 6,
+            }}
+          >
+            <CircularProgress />
           </Box>
-        </Box>
-      </Container>
-    </>
+        ) : assignments.length === 0 ? (
+          <Alert severity="info">
+            You currently have no assigned tasks.
+          </Alert>
+        ) : (
+          <Stack spacing={2}>
+            {assignments.map((assignment) => {
+              const isLocating =
+                locatingAssignmentId ===
+                assignment.assignmentId;
+
+              const isSending =
+                sendingAssignmentId ===
+                assignment.assignmentId;
+
+              const isBusy =
+                isLocating || isSending;
+
+              return (
+                <Card
+                  key={assignment.assignmentId}
+                  sx={{
+                    borderRadius: 3,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    transition: "0.2s",
+                    "&:hover": {
+                      boxShadow: 4,
+                    },
+                  }}
+                >
+                  <CardContent>
+                    {/* Header */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: {
+                          xs: "column",
+                          sm: "row",
+                        },
+                        justifyContent:
+                          "space-between",
+                        alignItems: {
+                          xs: "flex-start",
+                          sm: "center",
+                        },
+                        gap: 2,
+                      }}
+                    >
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 700,
+                          }}
+                        >
+                          Task #
+                          {assignment.requestId}
+                        </Typography>
+
+                        <Typography
+                          variant="body1"
+                          sx={{ mt: 0.5 }}
+                        >
+                          {assignment.guestName}
+                        </Typography>
+                      </Box>
+
+                      <Chip
+                        label={getStatusLabel(
+                          assignment.status
+                        )}
+                        color={getStatusColor(
+                          assignment.status
+                        )}
+                      />
+                    </Box>
+
+                    {/* Customer Information */}
+                    <Stack
+                      spacing={1}
+                      sx={{ mt: 2 }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
+                      >
+                        <PhoneIcon fontSize="small" />
+
+                        <Typography variant="body2">
+                          {assignment.guestPhone}
+                        </Typography>
+                      </Box>
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
+                      >
+                        <DirectionsCarIcon fontSize="small" />
+
+                        <Typography variant="body2">
+                          {assignment.carMakeModel}
+                        </Typography>
+                      </Box>
+
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        Plate:{" "}
+                        {assignment.carPlateNumber}
+                      </Typography>
+                    </Stack>
+
+                    {/* Current Location */}
+                    {assignment.currentLatitude !==
+                        null &&
+                      assignment.currentLongitude !==
+                        null && (
+                        <Box sx={{ mt: 2 }}>
+                          <Alert
+                            severity="success"
+                            icon={<LocationOnIcon />}
+                          >
+                            Location is currently
+                            shared.
+                          </Alert>
+                        </Box>
+                      )}
+
+                    {/* Share Location Button */}
+                    <Box sx={{ mt: 3 }}>
+                      <Button
+                        variant="contained"
+                        startIcon={
+                          isBusy ? (
+                            <CircularProgress
+                              size={20}
+                              color="inherit"
+                            />
+                          ) : (
+                            <MyLocationIcon />
+                          )
+                        }
+                        onClick={() =>
+                          shareLocation(assignment)
+                        }
+                        disabled={
+                          isBusy ||
+                          assignment.status ===
+                            "COMPLETED" ||
+                          assignment.status ===
+                            "CANCELLED"
+                        }
+                        fullWidth
+                      >
+                        {isLocating
+                          ? "Getting Location..."
+                          : isSending
+                          ? "Sharing Location..."
+                          : assignment.status ===
+                              "ON_THE_WAY"
+                          ? "Update Location"
+                          : "Share Location"}
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </Stack>
+        )}
+      </Box>
+    </Container>
   );
 }

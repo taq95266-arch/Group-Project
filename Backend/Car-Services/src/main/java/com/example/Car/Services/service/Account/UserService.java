@@ -55,7 +55,7 @@ public class UserService implements UserInterface {
         user.setPhone(userRequest.getPhone());
         user.setFullName(userRequest.getFullName());
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        user.setRole(Role.valueOf(userRequest.getRole().toUpperCase()));
+        userRequest.setRole("ADMIN");
         user.setActive(true);
         String verificationToken = UUID.randomUUID().toString();
         user.setVerificationToken(verificationToken);

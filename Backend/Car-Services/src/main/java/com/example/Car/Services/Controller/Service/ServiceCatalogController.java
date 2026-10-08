@@ -1,6 +1,7 @@
 package com.example.Car.Services.Controller.Service;
 
 import com.example.Car.Services.DTO.request.ServiceOptionRequest;
+import com.example.Car.Services.DTO.response.CustomerGarageResponse;
 import com.example.Car.Services.DTO.response.ServiceOptionResponse;
 import com.example.Car.Services.DTO.request.ServiceRequest;
 import com.example.Car.Services.DTO.response.ServiceResponse;
@@ -21,7 +22,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/services")
-@PreAuthorize("hasRole('ADMIN')")
 public class ServiceCatalogController {
 
     private final ServiceCatalogService catalogService;
@@ -30,20 +30,30 @@ public class ServiceCatalogController {
         this.catalogService = catalogService;
     }
 
+
+
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public ServiceResponse createService(
             @RequestBody ServiceRequest request
     ) {
         return catalogService.createService(request);
     }
 
+
+
+
     @GetMapping
     public List<ServiceResponse> getAllServices() {
         return catalogService.getAllServices();
     }
 
+
+
     @GetMapping("/{serviceId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GARAGE_OWNER')")
     public ServiceResponse getService(
             @PathVariable Long serviceId
     ) {
@@ -51,6 +61,7 @@ public class ServiceCatalogController {
     }
 
     @PutMapping("/{serviceId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ServiceResponse updateService(
             @PathVariable Long serviceId,
             @RequestBody ServiceRequest request
@@ -59,12 +70,14 @@ public class ServiceCatalogController {
     }
 
     @DeleteMapping("/{serviceId}")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteService(@PathVariable Long serviceId) {
         catalogService.deleteService(serviceId);
     }
 
     @PostMapping("/{serviceId}/options")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public ServiceOptionResponse createOption(
             @PathVariable Long serviceId,
@@ -74,6 +87,7 @@ public class ServiceCatalogController {
     }
 
     @GetMapping("/{serviceId}/options")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GARAGE_OWNER')")
     public List<ServiceOptionResponse> getOptions(
             @PathVariable Long serviceId
     ) {
@@ -81,6 +95,7 @@ public class ServiceCatalogController {
     }
 
     @GetMapping("/{serviceId}/options/{optionId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GARAGE_OWNER')")
     public ServiceOptionResponse getOption(
             @PathVariable Long serviceId,
             @PathVariable Long optionId
@@ -89,6 +104,7 @@ public class ServiceCatalogController {
     }
 
     @PutMapping("/{serviceId}/options/{optionId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ServiceOptionResponse updateOption(
             @PathVariable Long serviceId,
             @PathVariable Long optionId,
@@ -102,11 +118,21 @@ public class ServiceCatalogController {
     }
 
     @DeleteMapping("/{serviceId}/options/{optionId}")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteOption(
             @PathVariable Long serviceId,
             @PathVariable Long optionId
     ) {
         catalogService.deleteOption(serviceId, optionId);
+    }
+
+
+
+    @GetMapping("/{serviceId}/garages")
+    public List<CustomerGarageResponse> getGaragesByService(
+            @PathVariable Long serviceId
+    ) {
+        return catalogService.getGaragesByService(serviceId);
     }
 }

@@ -18,7 +18,7 @@ export const paths = {
   adminUsers: "/admin/users",
   adminServices: "/admin/services",
   adminServiceOptions: (serviceId: number | string) => `/admin/services/${serviceId}/options`,
-
+  adminSubscriptionPlans: "/admin/adminsubscriptionPlans",
   ownerDashboard: "/owner/dashboard",
   ownerGarages: "/owner/garages",
   ownerGaragesrRegisterDocument: "/owner/garages/register-document",
@@ -26,6 +26,8 @@ export const paths = {
   ownerSubscriptions: "/owner/garages/subscriptions",
   paymentSuccess: "/owner/garages/payment-success",
   paymentCancel: "/owner/garages/payment-cancel",
+  ownerServiceOptions: "/owner/garages/services",
+  ownerServiceCustomerRequest: "/owner/garages/serviceRequests",
 
 
   ownerTechnicians: (garageId: number | string) => `/owner/garages/${garageId}/technicians`,

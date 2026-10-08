@@ -187,5 +187,13 @@
   "location.useMine": "استخدم موقعي",
   "location.send": "إرسال الموقع",
   "location.unsupported": "متصفحك لا يدعم تحديد الموقع.",
-  "location.denied": "تعذّر الحصول على موقعك. تحقق من إذن المتصفح."
+  "location.denied": "تعذّر الحصول على موقعك. تحقق من إذن المتصفح.",
+  "adminSubscriptionPlans.title" :"خطط الاشتراك",
+  "adminSubscriptionPlans.subtitle":"إدارة خطط الاشتراك",
+  "adminSubscriptionPlans.active" : "نشط",
+  "ServiceOptions":"خيارات الخدمة",
+  "ManageGarageServices" : "إدارة خدمات وكيل السيارات وأسعارها",
+  "menu.GarageAddServicePrice": "إضافة سعر الخدمة",
+"menu.ownerServiceCustomerRequest": "طلبات الخدمة"
+
 }
