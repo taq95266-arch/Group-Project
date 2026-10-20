@@ -105,21 +105,21 @@ public class ServiceCustomerRequestService {
     public ServiceCustomerRequestResponse acceptRequest(Long id, Long ownerId) {
 
         ServiceCustomerRequest serviceRequest = serviceCustomerRequestRepository.findById(id)
-                         .orElseThrow(() -> new BadRequestException("Service request not found"));
+                .orElseThrow(() -> new BadRequestException("Service request not found"));
 
-                  if (!serviceRequest.getGarageServiceOption()
-                    .getGarage().getOwnerId().equals(ownerId)) {
-                     throw new BadRequestException("You are not allowed to accept this request");
-                  }
+        if (!serviceRequest.getGarageServiceOption()
+                .getGarage().getOwnerId().equals(ownerId)) {
+            throw new BadRequestException("You are not allowed to accept this request");
+        }
 
-           if (serviceRequest.getStatus() != ServiceRequestStatus.PENDING) {
+        if (serviceRequest.getStatus() != ServiceRequestStatus.PENDING) {
             throw new BadRequestException("Only pending requests can be accepted");}
 
-              serviceRequest.setStatus(ServiceRequestStatus.ACCEPTED);
+        serviceRequest.setStatus(ServiceRequestStatus.ACCEPTED);
 
-               ServiceCustomerRequest saved = serviceCustomerRequestRepository.save(serviceRequest);
-               return toResponse(saved);
-           }
+        ServiceCustomerRequest saved = serviceCustomerRequestRepository.save(serviceRequest);
+        return toResponse(saved);
+    }
 
 
     @Transactional

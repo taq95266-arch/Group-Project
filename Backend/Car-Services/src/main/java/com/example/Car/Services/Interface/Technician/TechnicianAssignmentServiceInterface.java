@@ -17,6 +17,7 @@ public interface TechnicianAssignmentServiceInterface {
             Long assignedByUserId
     );
 
+<<<<<<< HEAD
     MessageResponse updateLocation(Long assignmentId, TechnicianAssignmentDTO dto, Long technicianUserId);
 
     MessageResponse updateStatus(Long assignmentId, AssignmentStatus newStatus, Long technicianUserId);
@@ -26,4 +27,10 @@ public interface TechnicianAssignmentServiceInterface {
     List<OwnerTechnicianAssignmentResponse> getOwnerAssignments(Long ownerId);
 
 
+=======
+    MessageResponse updateLocation(
+            Long assignmentId,
+            TechnicianAssignmentDTO dto
+    );
+>>>>>>> origin/main
 }

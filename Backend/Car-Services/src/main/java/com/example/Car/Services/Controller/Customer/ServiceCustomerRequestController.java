@@ -89,7 +89,7 @@ public class ServiceCustomerRequestController {
     @PreAuthorize("hasRole('GARAGE_OWNER')")
     @PutMapping("/owner/{id}/reject")
     public ResponseEntity<ServiceCustomerRequestResponse> rejectRequest(@Valid @PathVariable Long id, @RequestBody RejectServiceRequestRequest request,
-            @AuthenticationPrincipal User currentUser) {
+                                                                        @AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(service.rejectRequest(id, currentUser.getId(),request.getRejectionReason()));
     }
 
