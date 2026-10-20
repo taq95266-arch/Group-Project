@@ -8,8 +8,10 @@ import { garagesSlice } from "../features/GarageOwner/garagesSlice";
 import { ownerSlice } from "../features/GarageOwner/ownerSlice";
 import { techniciansSlice } from "../features/GarageOwner/techniciansSlice";
 import subscriptionPlanReducer from "../features/Subscriptions/subscriptionPlanSlice";
-
-
+import { garageServiceOptionsSlice } from "../features/GarageOwner/garageServiceOptionsSlice";
+import customerReducer from "../features/Customer/customerSlice";
+import serviceRequestsReducer from "../features/GarageOwner/serviceRequestsSlice";
+import ownerAssignmentsReducer from "../features/GarageOwner/ownerAssignmentsSlice";
 export const store = configureStore({
   reducer: {
     account: accountSlice.reducer,
@@ -20,6 +22,10 @@ export const store = configureStore({
     users: usersSlice.reducer,
     catalog: catalogSlice.reducer,
     subscriptionPlans: subscriptionPlanReducer,
+    garageServiceOptions: garageServiceOptionsSlice.reducer,
+    customer: customerReducer,
+    serviceRequests: serviceRequestsReducer,
+    ownerAssignments: ownerAssignmentsReducer,
   },
 });
 

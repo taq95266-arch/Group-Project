@@ -1,4 +1,3 @@
-/** Backend `TechnicianResponseDTO`. */
 export interface Technician {
   id: number;
   fullName: string;
@@ -10,7 +9,6 @@ export interface Technician {
   isActive: boolean | null;
 }
 
-/** Backend `TechnicianRequestDTO`. */
 export interface TechnicianRequest {
   fullName: string;
   email: string;
@@ -19,9 +17,7 @@ export interface TechnicianRequest {
   salary: number;
 }
 
-/** Backend `TechnicianAssignmentDTO` (body of POST /assignments/{id}/location). */
 export interface LocationUpdateRequest {
-  assignmentId: number;
   latitude: number;
   longitude: number;
 }

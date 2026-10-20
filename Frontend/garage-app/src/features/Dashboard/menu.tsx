@@ -4,11 +4,10 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import BuildIcon from "@mui/icons-material/Build";
 import GarageIcon from "@mui/icons-material/Garage";
 import AddBusinessIcon from "@mui/icons-material/AddBusiness";
-import MyLocationIcon from "@mui/icons-material/MyLocation";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import { Role } from "../../app/models/enums";
 import { paths } from "../../app/utils/paths";
-import { ListAltTwoTone } from "@mui/icons-material";
+import { Assessment, ListAlt, ListAltTwoTone } from "@mui/icons-material";
 
 export interface DashboardMenuItem {
   labelKey: string;
@@ -25,6 +24,7 @@ export function menuForRole(role: Role): DashboardMenuItem[] {
         { labelKey: "menu.registrationDocuments", path: paths.adminDocuments, icon: <DescriptionIcon /> },
         { labelKey: "menu.users", path: paths.adminUsers, icon: <PeopleIcon /> },
         { labelKey: "menu.services", path: paths.adminServices, icon: <BuildIcon />, matchPrefix: true },
+        { labelKey: "menu.subscriptionPlans", path: paths.adminSubscriptionPlans, icon: <BuildIcon />, matchPrefix: true },
       ];
     case Role.GARAGE_OWNER:
       return [
@@ -32,13 +32,15 @@ export function menuForRole(role: Role): DashboardMenuItem[] {
         { labelKey: "menu.myGarages", path: paths.ownerGarages, icon: <GarageIcon /> },
         { labelKey: "menu.requestGarage", path: paths.ownerRequestGarage, icon: <AddBusinessIcon /> },
         { labelKey: "menu.requestGarageRegisterDoc", path: paths.ownerGaragesrRegisterDocument, icon: <ListAltTwoTone /> },
-        {labelKey: "menu.subscriptionPlans",path: paths.ownerSubscriptions,icon: <ListAltTwoTone />,
-},
+        {labelKey: "menu.subscriptionPlans",path: paths.ownerSubscriptions,icon: <ListAltTwoTone />,},
+         {labelKey: "menu.GarageAddServicePrice",path: paths.ownerServiceOptions,icon: <ListAltTwoTone />,},
+         {labelKey: "menu.ownerServiceCustomerRequest",path: paths.ownerServiceCustomerRequest,icon: <ListAltTwoTone />,},
+         {labelKey: "menu.technicianTasks",path: paths.ownerTechnicianTasks,icon: <Assessment />,},
       ];
     case Role.TECHNICIAN:
       return [
         { labelKey: "menu.dashboard", path: paths.technicianDashboard, icon: <DashboardIcon /> },
-        { labelKey: "menu.shareLocation", path: paths.technicianLocation, icon: <MyLocationIcon /> },
+        { labelKey: "menu.Task", path: paths.technicianLocation, icon: <ListAlt /> },
       ];
   }
 }

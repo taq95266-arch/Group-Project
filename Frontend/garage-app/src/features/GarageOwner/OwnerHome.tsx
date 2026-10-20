@@ -56,6 +56,8 @@ export default function OwnerHome() {
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <Button variant="contained" component={Link} to={paths.ownerGarages}>{t("menu.myGarages")}</Button>
             <Button variant="outlined" component={Link} to={paths.ownerRequestGarage}>{t("menu.requestGarage")}</Button>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+            <Button variant="outlined" component={Link} to={paths.ownerServiceOptions}>Manage Services</Button></Box>
           </Box>
         </>
       )}

@@ -7,6 +7,16 @@ import "./features/Translation/i18n";
 import { router } from "./app/router/Routes";
 import { store } from "./store/configureStore";
 
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+import "@fontsource/permanent-marker";
+
+import AOS from "aos";
+import "aos/dist/aos.css";
+
+AOS.init();
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>

@@ -1,93 +1,142 @@
-import { useState } from "react";
-import { Alert, Box, Container, Grid, Paper } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import MyLocationIcon from "@mui/icons-material/MyLocation";
-import { useForm } from "react-hook-form";
+
+import { useCallback, useEffect, useState } from "react";
+
+import {
+  Alert,
+  Box,
+  Container,
+  Typography,
+} from "@mui/material";
+
 import { useTranslation } from "react-i18next";
+
 import agent from "../../app/api/agent";
-import AppTextInput from "../../app/components/AppTextInput";
 import PageHeader from "../../app/components/PageHeader";
 import { toAppError } from "../../app/utils/error";
-import { notifyError, notifySuccess } from "../../app/utils/notify";
-import { rules } from "../../app/utils/validation";
+import {
+  notifyError,
+  notifySuccess,
+} from "../../app/utils/notify";
 
-interface Form {
-  assignmentId: string;
-  latitude: string;
-  longitude: string;
-}
+import type { TechnicianAssignment } from "../../app/models/TechnicianAssignment";
+import TechnicianTaskCard from "./TechnicianTaskCard";
 
 export default function ShareLocation() {
   const { t } = useTranslation();
-  const [locating, setLocating] = useState(false);
-  const { handleSubmit, control, setValue, formState: { isSubmitting } } = useForm<Form>({ mode: "onTouched" });
-  const r = rules(t);
 
-  const useMyLocation = () => {
+  const [assignments, setAssignments] = useState<
+    TechnicianAssignment[]
+  >([]);
+
+  const [loading, setLoading] = useState(true);
+
+  const [locatingAssignmentId, setLocatingAssignmentId] =
+    useState<number | null>(null);
+
+  const [sendingAssignmentId, setSendingAssignmentId] =
+    useState<number | null>(null);
+
+  const loadAssignments = useCallback(async () => {
+    try {
+      const response = await agent.Assignments.getMyAssignments();
+      setAssignments(response);
+    } catch (error) {
+      notifyError(t, toAppError(error).message);
+    } finally {
+      setLoading(false);
+    }
+  }, [t]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadAssignments();
+  }, [loadAssignments]);
+
+  const shareLocation = async (
+    assignment: TechnicianAssignment
+  ) => {
     if (!navigator.geolocation) {
-      notifyError(t, t("location.unsupported"));
+      notifyError(
+        t,
+        "Location is not supported by your browser."
+      );
       return;
     }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setValue("latitude", position.coords.latitude.toFixed(7), { shouldValidate: true });
-        setValue("longitude", position.coords.longitude.toFixed(7), { shouldValidate: true });
-        setLocating(false);
+
+    setLocatingAssignmentId(assignment.assignmentId);
+
+    navigator.geolocation.watchPosition(
+      async (position) => {
+
+        setLocatingAssignmentId(null);
+        setSendingAssignmentId(assignment.assignmentId);
+
+        try {
+          const response =
+            await agent.Assignments.updateLocation(
+              assignment.assignmentId,
+              {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+              }
+            );
+
+          notifySuccess(response.message);
+          await loadAssignments();
+        } catch (error) {
+          notifyError(t, toAppError(error).message);
+        } finally {
+          setSendingAssignmentId(null);
+        }
       },
       () => {
-        setLocating(false);
-        notifyError(t, t("location.denied"));
+        setLocatingAssignmentId(null);
+
+        notifyError(
+          t,
+          "Unable to get your location. Please allow location permission."
+        );
       },
-      { enableHighAccuracy: true, timeout: 15000 },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0,
+      }
     );
   };
 
-  async function submitForm(values: Form) {
-    const assignmentId = Number(values.assignmentId);
-    try {
-      const response = await agent.Assignments.updateLocation(assignmentId, {
-        assignmentId,
-        latitude: Number(values.latitude),
-        longitude: Number(values.longitude),
-      });
-      notifySuccess(response.message);
-    } catch (error) {
-      notifyError(t, toAppError(error).message);
-    }
-  }
-
   return (
-    <>
-      <PageHeader title={t("menu.shareLocation")} subtitle={t("location.subtitle")} />
-      <Container component={Paper} maxWidth="sm" sx={{ p: 4, mx: 0 }}>
-        <Alert severity="info" sx={{ mb: 2 }}>{t("location.notice")}</Alert>
-        <Box component="form" onSubmit={handleSubmit(submitForm)} noValidate>
-          <AppTextInput
-            name="assignmentId"
-            control={control}
-            label={t("fields.assignmentId")}
-            type="number"
-            rules={r.positiveNumber}
-          />
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <AppTextInput name="latitude" control={control} label={t("fields.latitude")} type="number" rules={r.latitude} slotProps={{ htmlInput: { step: "any" } }} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <AppTextInput name="longitude" control={control} label={t("fields.longitude")} type="number" rules={r.longitude} slotProps={{ htmlInput: { step: "any" } }} />
-            </Grid>
-          </Grid>
-          <Box sx={{ display: "flex", gap: 2, mt: 2, flexWrap: "wrap" }}>
-            <LoadingButton loading={locating} variant="outlined" startIcon={<MyLocationIcon />} onClick={useMyLocation}>
-              {t("location.useMine")}
-            </LoadingButton>
-            <LoadingButton loading={isSubmitting} type="submit" variant="contained">
-              {t("location.send")}
-            </LoadingButton>
-          </Box>
-        </Box>
-      </Container>
-    </>
+    <Container maxWidth="lg">
+      <PageHeader
+        title="Share Location"
+        subtitle="View your assigned tasks and share your location for each task."
+      />
+
+      <Box sx={{ mt: 3 }}>
+        <Typography
+          variant="h5"
+          sx={{ mb: 2, fontWeight: 700 }}
+        >
+          My Tasks
+        </Typography>
+
+{!loading && assignments.length === 0 ? (
+  <Alert severity="info">
+    You currently have no assigned tasks.
+  </Alert>
+) : (
+  !loading && (
+    <TechnicianTaskCard
+      assignments={assignments}
+      locatingAssignmentId={locatingAssignmentId}
+      sendingAssignmentId={sendingAssignmentId}
+      onShareLocation={shareLocation}
+    />
+  )
+)}
+
+      
+      </Box>
+    </Container>
   );
 }

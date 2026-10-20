@@ -12,11 +12,21 @@ interface GaragesState {
   error: string | null;
 }
 
-const initialState: GaragesState = { items: [], status: "idle", error: null };
+const initialState: GaragesState = {
+  items: [],
+  status: "idle",
+  error: null,
+};
 
-type Rejected = { rejectValue: string };
+type Rejected = {
+  rejectValue: string;
+};
 
-export const fetchGaragesAsync = createAsyncThunk<Garage[], number, Rejected>(
+export const fetchGaragesAsync = createAsyncThunk<
+  Garage[],
+  number,
+  Rejected
+>(
   "garages/fetch",
   async (ownerId, thunkAPI) => {
     try {
@@ -24,12 +34,16 @@ export const fetchGaragesAsync = createAsyncThunk<Garage[], number, Rejected>(
     } catch (error) {
       return thunkAPI.rejectWithValue(toAppError(error).message);
     }
-  },
+  }
 );
 
 export const fetchGaragesRegisterDocumentAsync = createAsyncThunk<
   PageResponse<RegistrationDocument>,
-  { ownerId: number; page: number; size: number },
+  {
+    ownerId: number;
+    page: number;
+    size: number;
+  },
   Rejected
 >(
   "garages/fetchRegisterDocuments",
@@ -41,28 +55,39 @@ export const fetchGaragesRegisterDocumentAsync = createAsyncThunk<
         size
       );
     } catch (error) {
-      return thunkAPI.rejectWithValue(
-        toAppError(error).message
-      );
+      return thunkAPI.rejectWithValue(toAppError(error).message);
     }
   }
 );
 
-
 export const deactivateGarageAsync = createAsyncThunk<
-  { id: number; response: MessageResponse },
+  {
+    id: number;
+    response: MessageResponse;
+  },
   number,
   Rejected
->("garages/deactivate", async (garageId, thunkAPI) => {
-  try {
-    const response = await agent.Garages.deactivate(garageId);
-    return { id: garageId, response };
-  } catch (error) {
-    return thunkAPI.rejectWithValue(toAppError(error).message);
-  }
-});
+>(
+  "garages/deactivate",
+  async (garageId, thunkAPI) => {
+    try {
+      const response = await agent.Garages.deactivate(garageId);
 
-export const requestGarageAsync = createAsyncThunk<MessageResponse, FormData, Rejected>(
+      return {
+        id: garageId,
+        response,
+      };
+    } catch (error) {
+      return thunkAPI.rejectWithValue(toAppError(error).message);
+    }
+  }
+);
+
+export const requestGarageAsync = createAsyncThunk<
+  MessageResponse,
+  FormData,
+  Rejected
+>(
   "garages/requestNew",
   async (formData, thunkAPI) => {
     try {
@@ -70,46 +95,75 @@ export const requestGarageAsync = createAsyncThunk<MessageResponse, FormData, Re
     } catch (error) {
       return thunkAPI.rejectWithValue(toAppError(error).message);
     }
-  },
+  }
 );
 
 export const garagesSlice = createSlice({
   name: "garages",
   initialState,
-  reducers: {},
+  reducers: {
+    clearGarages: (state) => {
+      state.items = [];
+      state.status = "idle";
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchGaragesAsync.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
+
       .addCase(fetchGaragesAsync.fulfilled, (state, action) => {
         state.items = action.payload;
         state.status = "idle";
+        state.error = null;
       })
+
       .addCase(fetchGaragesAsync.rejected, (state, action) => {
         state.status = "idle";
         state.error = action.payload ?? "Failed to load garages";
       })
+
       .addCase(deactivateGarageAsync.pending, (state) => {
         state.status = "saving";
+        state.error = null;
       })
+
       .addCase(deactivateGarageAsync.fulfilled, (state, action) => {
         state.status = "idle";
-        const garage = state.items.find((g) => g.id === action.payload.id);
-        if (garage) garage.status = GarageStatus.INACTIVE;
+        state.error = null;
+
+        const garage = state.items.find(
+          (garage) => garage.id === action.payload.id
+        );
+
+        if (garage) {
+          garage.status = GarageStatus.INACTIVE;
+        }
       })
-      .addCase(deactivateGarageAsync.rejected, (state) => {
+
+      .addCase(deactivateGarageAsync.rejected, (state, action) => {
         state.status = "idle";
+        state.error = action.payload ?? "Failed to deactivate garage";
       })
+
       .addCase(requestGarageAsync.pending, (state) => {
         state.status = "saving";
+        state.error = null;
       })
+
       .addCase(requestGarageAsync.fulfilled, (state) => {
         state.status = "idle";
+        state.error = null;
       })
-      .addCase(requestGarageAsync.rejected, (state) => {
+
+      .addCase(requestGarageAsync.rejected, (state, action) => {
         state.status = "idle";
+        state.error = action.payload ?? "Failed to request garage";
       });
   },
 });
+
+export const { clearGarages } = garagesSlice.actions;

@@ -73,18 +73,39 @@ function App() {
       createTheme({
         direction: isRtl ? "rtl" : "ltr",
         palette: {
-          primary: { main: "#1d4e89" },
-          secondary: { main: "#ff7a18" },
-          background: { default: "#f6f8fb" },
+          primary: { main: "#F5D34A" },
+          secondary: { main: "#000000" },
+          background: { default: "#F5F7FA" },
         },
         shape: {
           borderRadius: 8,
         },
-        typography: {
-          fontFamily: isRtl
-            ? '"Segoe UI", Tahoma, "Noto Sans Arabic", Arial, sans-serif'
-            : '"Roboto", "Segoe UI", Helvetica, Arial, sans-serif',
-        },
+ typography: {
+  fontFamily: isRtl
+    ? '"Segoe UI", Tahoma, "Noto Sans Arabic", Arial, sans-serif'
+    : '"Caveat Brush", "Segoe UI", Helvetica, Arial, sans-serif',
+
+  h1: {
+    fontFamily: isRtl
+      ? '"Segoe UI", Tahoma, "Noto Sans Arabic", Arial, sans-serif'
+      : '"Caveat Brush", cursive',
+    fontWeight: 400,
+  },
+
+  h2: {
+    fontFamily: isRtl
+      ? '"Segoe UI", Tahoma, "Noto Sans Arabic", Arial, sans-serif'
+      : '"Caveat Brush", cursive',
+    fontWeight: 400,
+  },
+
+  h3: {
+    fontFamily: isRtl
+      ? '"Segoe UI", Tahoma, "Noto Sans Arabic", Arial, sans-serif'
+      : '"Caveat Brush", cursive',
+    fontWeight: 400,
+  },
+},
       }),
     [isRtl]
   );

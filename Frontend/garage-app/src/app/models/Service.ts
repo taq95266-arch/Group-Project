@@ -1,4 +1,3 @@
-/** Backend `ServiceRequest` / `ServiceResponse`. */
 export interface ServiceRequest {
   name: string;
 }
@@ -7,7 +6,6 @@ export interface ServiceItem {
   name: string;
 }
 
-/** Backend `ServiceOptionRequest` / `ServiceOptionResponse`. */
 export interface ServiceOptionRequest {
   type: string;
   size?: string;

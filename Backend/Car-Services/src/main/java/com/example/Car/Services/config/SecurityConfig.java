@@ -26,7 +26,10 @@ public class SecurityConfig {
             "/api/stripe/webhook",
             "/api/owner/registration/**",
             "/ws-tracking/**",
-            "/api/customer/**"
+            "/api/customer/**",
+            "/api/services",
+            "/api/services/*/garages"
+
     };
 
     private static final String[] ADMIN_ENDPOINTS = {

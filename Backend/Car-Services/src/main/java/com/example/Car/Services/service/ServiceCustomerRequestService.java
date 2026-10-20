@@ -7,10 +7,13 @@ import com.example.Car.Services.Repository.ServiceCustomerRequestRepository;
 import com.example.Car.Services.entities.GarageServiceOption;
 import com.example.Car.Services.entities.ServiceCustomerRequest;
 import com.example.Car.Services.enums.ServiceRequestStatus;
+import com.example.Car.Services.expection.BadRequestException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ServiceCustomerRequestService {
@@ -26,16 +29,19 @@ public class ServiceCustomerRequestService {
         this.garageServiceOptionRepository = garageServiceOptionRepository;
     }
 
+    @Transactional
     public ServiceCustomerRequestResponse create(
             ServiceCustomerRequestRequest request) {
 
         GarageServiceOption garageOption =
                 garageServiceOptionRepository.findById(request.getGarageOptionId())
                         .orElseThrow(() ->
-                                new RuntimeException("Garage service option not found"));
+                                new BadRequestException(
+                                        "Garage service option not found"));
 
         if (!Boolean.TRUE.equals(garageOption.getIsAvailable())) {
-            throw new RuntimeException("This service is currently unavailable");
+            throw new BadRequestException(
+                    "This service is currently unavailable");
         }
 
         ServiceCustomerRequest serviceRequest =
@@ -44,12 +50,18 @@ public class ServiceCustomerRequestService {
         serviceRequest.setGarageServiceOption(garageOption);
         serviceRequest.setGuestName(request.getGuestName());
         serviceRequest.setGuestPhone(request.getGuestPhone());
+        serviceRequest.setGuestEmail(request.getGuestEmail());
         serviceRequest.setCarMakeModel(request.getCarMakeModel());
         serviceRequest.setCarPlateNumber(request.getCarPlateNumber());
+
+        // Customer location
+        serviceRequest.setLatitude(request.getLatitude());
+        serviceRequest.setLongitude(request.getLongitude());
 
         serviceRequest.setAppliedPrice(garageOption.getPrice());
 
         serviceRequest.setStatus(ServiceRequestStatus.PENDING);
+        serviceRequest.setTrackingToken(UUID.randomUUID().toString());
 
         serviceRequest.setCreatedAt(LocalDateTime.now());
 
@@ -67,15 +79,75 @@ public class ServiceCustomerRequestService {
                 .toList();
     }
 
+    public List<ServiceCustomerRequestResponse> getOwnerRequests(Long ownerId) {
+        return serviceCustomerRequestRepository.findByGarageServiceOption_Garage_OwnerIdOrderByCreatedAtDesc(
+                        ownerId
+                )
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public ServiceCustomerRequestResponse getById(Long id) {
 
         ServiceCustomerRequest serviceRequest =
                 serviceCustomerRequestRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException("Service request not found"));
+                                new BadRequestException(
+                                        "Service request not found"));
 
         return toResponse(serviceRequest);
     }
+
+
+
+    @Transactional
+    public ServiceCustomerRequestResponse acceptRequest(Long id, Long ownerId) {
+
+        ServiceCustomerRequest serviceRequest = serviceCustomerRequestRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Service request not found"));
+
+        if (!serviceRequest.getGarageServiceOption()
+                .getGarage().getOwnerId().equals(ownerId)) {
+            throw new BadRequestException("You are not allowed to accept this request");
+        }
+
+        if (serviceRequest.getStatus() != ServiceRequestStatus.PENDING) {
+            throw new BadRequestException("Only pending requests can be accepted");}
+
+        serviceRequest.setStatus(ServiceRequestStatus.ACCEPTED);
+
+        ServiceCustomerRequest saved = serviceCustomerRequestRepository.save(serviceRequest);
+        return toResponse(saved);
+    }
+
+
+    @Transactional
+    public ServiceCustomerRequestResponse  rejectRequest(Long id, Long ownerId, String rejectionReason) {
+
+        ServiceCustomerRequest serviceRequest = serviceCustomerRequestRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Service request not found"));
+
+        if (!serviceRequest.getGarageServiceOption()
+                .getGarage().getOwnerId().equals(ownerId)) {
+            throw new BadRequestException("You are not allowed to reject  this request");
+        }
+
+
+        if(rejectionReason == null || rejectionReason.isBlank()){
+            throw new BadRequestException("Rejection reason is required");
+        }
+
+        serviceRequest.setStatus(ServiceRequestStatus.REJECTED);
+        serviceRequest.setRejectionReason(rejectionReason.trim());
+
+        ServiceCustomerRequest saved = serviceCustomerRequestRepository.save(serviceRequest);
+        return toResponse(saved);
+    }
+
+
+
+
 
     public ServiceCustomerRequestResponse update(
             Long id,
@@ -84,22 +156,30 @@ public class ServiceCustomerRequestService {
         ServiceCustomerRequest serviceRequest =
                 serviceCustomerRequestRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException("Service request not found"));
+                                new BadRequestException(
+                                        "Service request not found"));
 
         GarageServiceOption garageOption =
-                garageServiceOptionRepository.findById(request.getGarageOptionId())
+                garageServiceOptionRepository.findById(
+                                request.getGarageOptionId())
                         .orElseThrow(() ->
-                                new RuntimeException("Garage service option not found"));
+                                new BadRequestException(
+                                        "Garage service option not found"));
 
         if (!Boolean.TRUE.equals(garageOption.getIsAvailable())) {
-            throw new RuntimeException("This service is currently unavailable");
+            throw new BadRequestException(
+                    "This service is currently unavailable");
         }
 
         serviceRequest.setGarageServiceOption(garageOption);
         serviceRequest.setGuestName(request.getGuestName());
         serviceRequest.setGuestPhone(request.getGuestPhone());
+        serviceRequest.setGuestEmail(request.getGuestEmail());
         serviceRequest.setCarMakeModel(request.getCarMakeModel());
         serviceRequest.setCarPlateNumber(request.getCarPlateNumber());
+
+        serviceRequest.setLatitude(request.getLatitude());
+        serviceRequest.setLongitude(request.getLongitude());
 
         serviceRequest.setAppliedPrice(garageOption.getPrice());
 
@@ -112,7 +192,8 @@ public class ServiceCustomerRequestService {
     public void delete(Long id) {
 
         if (!serviceCustomerRequestRepository.existsById(id)) {
-            throw new RuntimeException("Service request not found");
+            throw new BadRequestException(
+                    "Service request not found");
         }
 
         serviceCustomerRequestRepository.deleteById(id);
@@ -123,14 +204,19 @@ public class ServiceCustomerRequestService {
 
         return new ServiceCustomerRequestResponse(
                 serviceRequest.getRequestId(),
-                serviceRequest.getGarageServiceOption().getGarageOptionId(),
+                serviceRequest.getGarageServiceOption().getGarage().getId(),
+                serviceRequest.getGarageServiceOption().getGarage().getName(),
                 serviceRequest.getGuestName(),
                 serviceRequest.getGuestPhone(),
+                serviceRequest.getGuestEmail(),
                 serviceRequest.getCarMakeModel(),
                 serviceRequest.getCarPlateNumber(),
                 serviceRequest.getAppliedPrice(),
                 serviceRequest.getStatus(),
-                serviceRequest.getCreatedAt()
+                serviceRequest.getRejectionReason(),
+                serviceRequest.getCreatedAt(),
+                serviceRequest.getLatitude(),
+                serviceRequest.getLongitude()
         );
     }
 }

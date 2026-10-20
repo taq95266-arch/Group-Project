@@ -7,6 +7,10 @@ import com.example.Car.Services.entities.RepairPhoto;
 import com.example.Car.Services.entities.TechnicianAssignment;
 import com.example.Car.Services.enums.AssignmentStatus;
 import com.example.Car.Services.enums.PhotoType;
+<<<<<<< HEAD
+import com.example.Car.Services.expection.BadRequestException;
+=======
+>>>>>>> origin/main
 import com.example.Car.Services.service.common.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -75,7 +79,11 @@ public class RepairPhotoService implements RepairPhotoServiceInterface {
             );
         }
 
+<<<<<<< HEAD
+        String storedFileName = fileStorageService.storeRepairPhoto(file);
+=======
         String storedFileName = fileStorageService.storeFile(file);
+>>>>>>> origin/main
 
         RepairPhoto photo = new RepairPhoto();
         photo.setServiceRequest(assignment.getServiceRequest());
@@ -97,6 +105,17 @@ public class RepairPhotoService implements RepairPhotoServiceInterface {
                 .findByServiceRequest_RequestIdOrderByCapturedAtAsc(requestId);
     }
 
+<<<<<<< HEAD
+
+
+
+
+
+
+
+
+=======
+>>>>>>> origin/main
     private TechnicianAssignment findTechnicianAssignment(
             Long requestId,
             Long technicianUserId
@@ -124,4 +143,29 @@ public class RepairPhotoService implements RepairPhotoServiceInterface {
 
         return assignment;
     }
+<<<<<<< HEAD
+
+
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RepairPhoto> getOwnerPhotos(Long requestId, Long ownerId) {
+
+        TechnicianAssignment assignment = assignmentRepository.findFirstByServiceRequest_RequestIdOrderByAssignedAtDesc(requestId)
+                        .orElseThrow(() -> new BadRequestException("Technician assignment not found"));
+
+        Long requestOwnerId = assignment.getServiceRequest()
+                .getGarageServiceOption()
+                .getGarage()
+                .getOwnerId();
+
+        if (!requestOwnerId.equals(ownerId)) {
+            throw new BadRequestException("You are not allowed to view these photos");
+        }
+
+        return repairPhotoRepository.findByServiceRequest_RequestIdOrderByCapturedAtAsc(requestId);
+    }
+=======
+>>>>>>> origin/main
 }

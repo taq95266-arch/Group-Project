@@ -19,7 +19,7 @@ import java.util.List;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminUserController {
 
-    private UserInterface userService;
+    private final UserInterface userService;
 
     @PostMapping
     public ResponseEntity<MessageResponse> createUser(@Valid @RequestBody UserRequest userRequest){

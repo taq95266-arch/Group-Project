@@ -81,12 +81,6 @@ public class GarageTechnicianService
 
         String verificationToken =
                 UUID.randomUUID().toString();
-
-        String hashedToken =
-                SecureToken.hash(
-                        verificationToken
-                );
-
         User technicianUser =
                 new User();
 
@@ -120,7 +114,7 @@ public class GarageTechnicianService
         );
 
         technicianUser.setPasswordResetToken(
-                hashedToken
+                verificationToken
         );
 
         technicianUser.setPasswordResetTokenExpiry(

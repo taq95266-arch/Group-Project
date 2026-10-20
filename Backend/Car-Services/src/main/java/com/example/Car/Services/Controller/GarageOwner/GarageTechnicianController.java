@@ -46,7 +46,9 @@ public class GarageTechnicianController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/garage/{garageId}")
+
+
+    @GetMapping("{garageId}/technicians")
     public ResponseEntity<List<TechnicianResponseDTO>> getTechniciansByGarage(
             @PathVariable Long garageId
     ) {
