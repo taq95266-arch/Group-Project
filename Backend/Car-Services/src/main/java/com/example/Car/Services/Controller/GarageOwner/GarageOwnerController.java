@@ -72,9 +72,6 @@ public class GarageOwnerController {
 
 
 
-
-
-
     @GetMapping("register-document/{ownerId}")
     public ResponseEntity<PageResponse<RegistrationDocumentResponse>> getOwnerGarages(
             @PathVariable Long ownerId,

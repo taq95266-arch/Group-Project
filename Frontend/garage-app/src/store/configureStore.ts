@@ -11,7 +11,7 @@ import subscriptionPlanReducer from "../features/Subscriptions/subscriptionPlanS
 import { garageServiceOptionsSlice } from "../features/GarageOwner/garageServiceOptionsSlice";
 import customerReducer from "../features/Customer/customerSlice";
 import serviceRequestsReducer from "../features/GarageOwner/serviceRequestsSlice";
-
+import ownerAssignmentsReducer from "../features/GarageOwner/ownerAssignmentsSlice";
 export const store = configureStore({
   reducer: {
     account: accountSlice.reducer,
@@ -25,6 +25,7 @@ export const store = configureStore({
     garageServiceOptions: garageServiceOptionsSlice.reducer,
     customer: customerReducer,
     serviceRequests: serviceRequestsReducer,
+    ownerAssignments: ownerAssignmentsReducer,
   },
 });
 

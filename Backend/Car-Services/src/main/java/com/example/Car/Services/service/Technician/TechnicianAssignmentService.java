@@ -3,6 +3,7 @@ package com.example.Car.Services.service.Technician;
 import com.example.Car.Services.DTO.TechnicianAssignmentDTO;
 import com.example.Car.Services.DTO.request.AssignTechnicianRequestDTO;
 import com.example.Car.Services.DTO.response.MessageResponse;
+import com.example.Car.Services.DTO.response.OwnerTechnicianAssignmentResponse;
 import com.example.Car.Services.DTO.response.TechnicianTaskResponseDTO;
 import com.example.Car.Services.DTO.response.TrackingResponseDTO;
 import com.example.Car.Services.Interface.Technician.TechnicianAssignmentServiceInterface;
@@ -96,14 +97,15 @@ public class TechnicianAssignmentService
         TechnicianAssignment assignment = new TechnicianAssignment();
 
         assignment.setServiceRequest(serviceRequest);
+
         assignment.setTechnician(technician);
         assignment.setAssignedBy(assignedBy);
         assignment.setStatus(AssignmentStatus.ASSIGNED);
+
         assignment.setAssignedAt(Instant.now());
 
         technicianAssignmentRepository.save(assignment);
-
-        serviceRequest.setStatus(ServiceRequestStatus.IN_PROGRESS);
+        serviceRequest.setStatus(ServiceRequestStatus.ACCEPTED);
         serviceCustomerRequestRepository.save(serviceRequest);
 
         String trackingLink = frontendUrl + "/track/" + serviceRequest.getTrackingToken();
@@ -134,118 +136,52 @@ public class TechnicianAssignmentService
             );
         }
 
-        if (technicianAssignment.getStatus() ==
-                AssignmentStatus.CANCELLED ||
-                technicianAssignment.getStatus() ==
-                        AssignmentStatus.COMPLETED) {
-
-            throw new BadRequestException(
-                    "Cannot update location for completed or cancelled assignment"
-            );
+        if (technicianAssignment.getStatus() == AssignmentStatus.CANCELLED || technicianAssignment.getStatus() == AssignmentStatus.COMPLETED) {
+            throw new BadRequestException("Cannot update location for completed or cancelled assignment");
         }
 
-        if (dto.getLatitude()
-                .compareTo(GeoConstants.MIN_LATITUDE) < 0 ||
-                dto.getLatitude()
-                        .compareTo(GeoConstants.MAX_LATITUDE) > 0 ||
-                dto.getLongitude()
-                        .compareTo(GeoConstants.MIN_LONGITUDE) < 0 ||
-                dto.getLongitude()
-                        .compareTo(GeoConstants.MAX_LONGITUDE) > 0) {
-
-            throw new BadRequestException(
-                    "Invalid latitude or longitude values"
-            );
+        if (dto.getLatitude().compareTo(GeoConstants.MIN_LATITUDE) < 0 ||
+                dto.getLatitude().compareTo(GeoConstants.MAX_LATITUDE) > 0 ||
+                dto.getLongitude().compareTo(GeoConstants.MIN_LONGITUDE) < 0 ||
+                dto.getLongitude().compareTo(GeoConstants.MAX_LONGITUDE) > 0) {
+            throw new BadRequestException("Invalid latitude or longitude values");
         }
 
-        technicianAssignment.setCurrentLatitude(
-                dto.getLatitude()
-        );
+        technicianAssignment.setCurrentLatitude(dto.getLatitude());
+        technicianAssignment.setCurrentLongitude(dto.getLongitude());
 
-        technicianAssignment.setCurrentLongitude(
-                dto.getLongitude()
-        );
+        technicianAssignment.setLastLocationUpdate(Instant.now());
 
-        technicianAssignment.setLastLocationUpdate(
-                Instant.now()
-        );
+        technicianAssignmentRepository.save(technicianAssignment);
+        TrackingResponseDTO trackingResponse = new TrackingResponseDTO(assignmentId, technicianAssignment.getStatus(), technicianAssignment.getCurrentLatitude(), technicianAssignment.getCurrentLongitude());
 
-        if (technicianAssignment.getStatus() ==
-                AssignmentStatus.PREPARING) {
+        messagingTemplate.convertAndSend("/topic/location/" + assignmentId, trackingResponse);
 
-            technicianAssignment.setStatus(
-                    AssignmentStatus.ON_THE_WAY
-            );
-        }
-
-        technicianAssignmentRepository.save(
-                technicianAssignment
-        );
-
-        TrackingResponseDTO trackingResponse =
-                new TrackingResponseDTO(
-                        assignmentId,
-                        technicianAssignment.getStatus(),
-                        technicianAssignment.getCurrentLatitude(),
-                        technicianAssignment.getCurrentLongitude()
-                );
-
-        messagingTemplate.convertAndSend(
-                "/topic/location/" + assignmentId,
-                trackingResponse
-        );
-
-        return new MessageResponse(
-                "Location updated successfully"
-        );
+        return new MessageResponse("Location updated successfully");
     }
+
 
     @Override
     @Transactional
-    public MessageResponse updateStatus(
-            Long assignmentId,
-            AssignmentStatus newStatus,
-            Long technicianUserId) {
+    public MessageResponse updateStatus(Long assignmentId, AssignmentStatus newStatus, Long technicianUserId) {
 
         if (assignmentId == null) {
-            throw new BadRequestException(
-                    "Assignment ID is required"
-            );
+            throw new BadRequestException("Assignment ID is required");
         }
 
         if (newStatus == null) {
-            throw new BadRequestException(
-                    "Status is required"
-            );
+            throw new BadRequestException("Status is required");
         }
 
-        TechnicianAssignment assignment =
-                technicianAssignmentRepository
-                        .findById(assignmentId)
-                        .orElseThrow(() ->
-                                new BadRequestException(
-                                        "Technician assignment not found"
-                                ));
+        TechnicianAssignment assignment = technicianAssignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new BadRequestException("Technician assignment not found"));
 
-        // Make sure the logged-in technician owns this assignment
-        if (!assignment.getTechnician()
-                .getUser()
-                .getId()
-                .equals(technicianUserId)) {
-
-            throw new BadRequestException(
-                    "You are not allowed to update this assignment"
-            );
+        if (!assignment.getTechnician().getUser().getId().equals(technicianUserId)) {
+            throw new BadRequestException("You are not allowed to update this assignment");
         }
 
-        if (assignment.getStatus() ==
-                AssignmentStatus.CANCELLED ||
-                assignment.getStatus() ==
-                        AssignmentStatus.COMPLETED) {
-
-            throw new BadRequestException(
-                    "Cannot update completed or cancelled assignment"
-            );
+        if (assignment.getStatus() == AssignmentStatus.CANCELLED || assignment.getStatus() == AssignmentStatus.COMPLETED) {
+            throw new BadRequestException("Cannot update completed or cancelled assignment");
         }
 
         assignment.setStatus(newStatus);
@@ -292,24 +228,30 @@ public class TechnicianAssignmentService
         );
     }
 
+
+
+
+
+
+
+
     @Override
     @Transactional(readOnly = true)
     public List<TechnicianTaskResponseDTO> getMyAssignments(Long technicianId) {
+       List<TechnicianAssignment> assignments =  technicianAssignmentRepository.findByTechnician_User_Id(technicianId);
+        return  TechnicianTaskResponseDTO.convertToDTO(assignments);
 
-        return technicianAssignmentRepository
-                .findByTechnician_User_Id(technicianId)
-                .stream()
-                .map(assignment -> new TechnicianTaskResponseDTO(
-                        assignment.getAssignmentId(),
-                        assignment.getServiceRequest().getRequestId(),
-                        assignment.getServiceRequest().getGuestName(),
-                        assignment.getServiceRequest().getGuestPhone(),
-                        assignment.getServiceRequest().getCarMakeModel(),
-                        assignment.getServiceRequest().getCarPlateNumber(),
-                        assignment.getStatus(),
-                        assignment.getCurrentLatitude(),
-                        assignment.getCurrentLongitude()
-                ))
-                .toList();
     }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<OwnerTechnicianAssignmentResponse> getOwnerAssignments(Long ownerId) {
+
+        List<TechnicianAssignment> assignments = technicianAssignmentRepository
+         .findByServiceRequest_GarageServiceOption_Garage_OwnerIdOrderByAssignedAtDesc(ownerId);
+
+        return OwnerTechnicianAssignmentResponse.convertToList(assignments);
+    }
+
 }

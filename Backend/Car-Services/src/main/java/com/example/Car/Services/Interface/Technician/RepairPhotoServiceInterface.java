@@ -19,4 +19,6 @@ public interface RepairPhotoServiceInterface {
             Long requestId,
             Long technicianUserId
     );
+
+    List<RepairPhoto> getOwnerPhotos(Long requestId, Long ownerId);
 }

@@ -15,11 +15,7 @@ public class TrackingController {
     private final TrackingService trackingService;
 
     @GetMapping("/{trackingToken}")
-    public ResponseEntity<CustomerTrackingResponse> getTracking(
-            @PathVariable String trackingToken) {
-
-        return ResponseEntity.ok(
-                trackingService.getTracking(trackingToken)
-        );
+    public ResponseEntity<CustomerTrackingResponse> getTracking(@PathVariable String trackingToken) {
+        return ResponseEntity.ok(trackingService.getTracking(trackingToken));
     }
 }

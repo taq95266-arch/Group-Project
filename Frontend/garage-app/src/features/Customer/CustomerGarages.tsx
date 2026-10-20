@@ -101,7 +101,6 @@ export default function CustomerGarages() {
 
   return (
     <Box sx={{ mt: 2 }}>
-      {/* Filters */}
       <Box
         sx={{
           display: "flex",
@@ -164,7 +163,6 @@ export default function CustomerGarages() {
         </FormControl>
       </Box>
 
-      {/* Garage Cards */}
       {filteredGarages.length === 0 ? (
         <Typography
           color="text.secondary"
@@ -203,7 +201,6 @@ export default function CustomerGarages() {
                     boxSizing: "border-box",
                   }}
                 >
-                  {/* Garage Name */}
                   <Typography
                     variant="h5"
                     sx={{
@@ -215,7 +212,6 @@ export default function CustomerGarages() {
                     {garage.garageName}
                   </Typography>
 
-                  {/* Location */}
                   <Box
                     sx={{
                       display: "flex",
@@ -233,7 +229,6 @@ export default function CustomerGarages() {
                     </Typography>
                   </Box>
 
-                  {/* Service Option */}
                   <Box
                     sx={{
                       display: "flex",
@@ -251,7 +246,6 @@ export default function CustomerGarages() {
                     </Typography>
                   </Box>
 
-                  {/* Size */}
                   {garage.optionSize && (
                     <Typography
                       variant="body2"
@@ -263,7 +257,6 @@ export default function CustomerGarages() {
                     </Typography>
                   )}
 
-                  {/* Brand */}
                   {garage.optionBrand && (
                     <Typography
                       variant="body2"
@@ -275,7 +268,6 @@ export default function CustomerGarages() {
                     </Typography>
                   )}
 
-                  {/* Price */}
                   <Box
                     sx={{
                       display: "flex",
@@ -300,7 +292,6 @@ export default function CustomerGarages() {
                     </Typography>
                   </Box>
 
-                  {/* Request Button */}
                   <Button
                     variant="contained"
                     fullWidth
@@ -330,7 +321,6 @@ export default function CustomerGarages() {
         </Grid>
       )}
 
-      {/* Request Form */}
       {selectedGarageOptionId !== null && (
         <CustomerServiceRequestForm
           garageOptionId={selectedGarageOptionId}

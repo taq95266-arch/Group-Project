@@ -194,6 +194,6 @@
   "ServiceOptions":"خيارات الخدمة",
   "ManageGarageServices" : "إدارة خدمات وكيل السيارات وأسعارها",
   "menu.GarageAddServicePrice": "إضافة سعر الخدمة",
-"menu.ownerServiceCustomerRequest": "طلبات الخدمة"
-
-}
+"menu.ownerServiceCustomerRequest": "طلبات الخدمة",
+"menu.Task": "مهامي",
+"home.uptitle": "سيارتك أولويتنا"}

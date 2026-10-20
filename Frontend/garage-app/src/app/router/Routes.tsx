@@ -38,6 +38,7 @@ import GarageServiceOptions from "../../features/GarageOwner/GarageServiceOption
 import CustomerGaragesPage from "../../features/Customer/CustomerGaragesPage";
 import OwnerServiceRequests from "../../features/GarageOwner/OwnerServiceRequests";
 import CustomerTracking from "../../features/Customer/CustomerTracking";
+import OwnerTechnicianTasks from "../../features/GarageOwner/OwnerTechnicianTasks";
 
 export const router = createBrowserRouter([
   {
@@ -116,6 +117,12 @@ export const router = createBrowserRouter([
                     path: "owner/garages/services",
                     element: <GarageServiceOptions />,
                   },
+                  {
+                     path: "owner/technician-tasks",
+                    element: <OwnerTechnicianTasks />,
+                   },
+
+                  
                 ],
               },
               {

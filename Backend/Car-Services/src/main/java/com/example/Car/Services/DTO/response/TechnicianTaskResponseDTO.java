@@ -1,50 +1,75 @@
 package com.example.Car.Services.DTO.response;
 
+import com.example.Car.Services.entities.TechnicianAssignment;
 import com.example.Car.Services.enums.AssignmentStatus;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class TechnicianTaskResponseDTO {
 
     private Long assignmentId;
+
     private Long requestId;
 
     private String guestName;
+
     private String guestPhone;
 
     private String carMakeModel;
+
     private String carPlateNumber;
 
     private AssignmentStatus status;
 
     private BigDecimal currentLatitude;
+
     private BigDecimal currentLongitude;
 
-    public TechnicianTaskResponseDTO(
-            Long assignmentId,
-            Long requestId,
-            String guestName,
-            String guestPhone,
-            String carMakeModel,
-            String carPlateNumber,
-            AssignmentStatus status,
-            BigDecimal currentLatitude,
-            BigDecimal currentLongitude) {
 
-        this.assignmentId = assignmentId;
-        this.requestId = requestId;
-        this.guestName = guestName;
-        this.guestPhone = guestPhone;
-        this.carMakeModel = carMakeModel;
-        this.carPlateNumber = carPlateNumber;
-        this.status = status;
-        this.currentLatitude = currentLatitude;
-        this.currentLongitude = currentLongitude;
+
+    public static TechnicianTaskResponseDTO convertToDTO(TechnicianAssignment entity) {
+
+        return TechnicianTaskResponseDTO.builder()
+                .assignmentId(entity.getAssignmentId())
+                .requestId(entity.getServiceRequest().getRequestId())
+                .guestName(entity.getServiceRequest().getGuestName())
+                .guestPhone(entity.getServiceRequest().getGuestPhone())
+                .carMakeModel(entity.getServiceRequest().getCarMakeModel())
+                .carPlateNumber(entity.getServiceRequest().getCarPlateNumber())
+                .status(entity.getStatus())
+                .currentLatitude(entity.getServiceRequest().getLatitude())
+                .currentLongitude(entity.getServiceRequest().getLongitude())
+                .build();
     }
+
+
+    public static List<TechnicianTaskResponseDTO> convertToDTO(
+            List<TechnicianAssignment> entityList) {
+
+        List<TechnicianTaskResponseDTO> dtos = new ArrayList<>();
+
+        for (TechnicianAssignment entity : entityList) {
+            dtos.add(convertToDTO(entity));
+        }
+
+        return dtos;
+    }
+
+
+
+
+
+
+
+
+
+
+
 }

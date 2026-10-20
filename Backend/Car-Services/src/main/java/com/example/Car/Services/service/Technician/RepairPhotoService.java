@@ -7,6 +7,7 @@ import com.example.Car.Services.entities.RepairPhoto;
 import com.example.Car.Services.entities.TechnicianAssignment;
 import com.example.Car.Services.enums.AssignmentStatus;
 import com.example.Car.Services.enums.PhotoType;
+import com.example.Car.Services.expection.BadRequestException;
 import com.example.Car.Services.service.common.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -75,7 +76,7 @@ public class RepairPhotoService implements RepairPhotoServiceInterface {
             );
         }
 
-        String storedFileName = fileStorageService.storeFile(file);
+        String storedFileName = fileStorageService.storeRepairPhoto(file);
 
         RepairPhoto photo = new RepairPhoto();
         photo.setServiceRequest(assignment.getServiceRequest());
@@ -96,6 +97,14 @@ public class RepairPhotoService implements RepairPhotoServiceInterface {
         return repairPhotoRepository
                 .findByServiceRequest_RequestIdOrderByCapturedAtAsc(requestId);
     }
+
+
+
+
+
+
+
+
 
     private TechnicianAssignment findTechnicianAssignment(
             Long requestId,
@@ -123,5 +132,27 @@ public class RepairPhotoService implements RepairPhotoServiceInterface {
         }
 
         return assignment;
+    }
+
+
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RepairPhoto> getOwnerPhotos(Long requestId, Long ownerId) {
+
+        TechnicianAssignment assignment = assignmentRepository.findFirstByServiceRequest_RequestIdOrderByAssignedAtDesc(requestId)
+                        .orElseThrow(() -> new BadRequestException("Technician assignment not found"));
+
+        Long requestOwnerId = assignment.getServiceRequest()
+                .getGarageServiceOption()
+                .getGarage()
+                .getOwnerId();
+
+        if (!requestOwnerId.equals(ownerId)) {
+            throw new BadRequestException("You are not allowed to view these photos");
+        }
+
+        return repairPhotoRepository.findByServiceRequest_RequestIdOrderByCapturedAtAsc(requestId);
     }
 }

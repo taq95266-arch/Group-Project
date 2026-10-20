@@ -54,6 +54,11 @@ public class ServiceCustomerRequest {
     @Column(name = "status", nullable = false)
     private ServiceRequestStatus status;
 
+
+    @Column(length = 500)
+    private String rejectionReason;
+
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 }

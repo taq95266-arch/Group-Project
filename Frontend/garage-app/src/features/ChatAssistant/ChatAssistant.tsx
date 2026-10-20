@@ -759,13 +759,13 @@ export default function ChatAssistant({
                 height: 66,
                 borderRadius: "50%",
                 background:
-                  "linear-gradient(135deg, #082567, #1565c0)",
-                color: "white",
+                  "linear-gradient(135deg, var(--dark-oringe), var(--light-oringe))",
+                color: "black",
                 boxShadow:
                   "0 10px 30px rgba(0,0,0,0.25)",
                 "&:hover": {
                   background:
-                    "linear-gradient(135deg, #061b4d, #0d47a1)",
+                    "linear-gradient(135deg, var(--light-oringe))",
                   transform: "scale(1.05)",
                 },
                 transition: "0.2s",
@@ -824,7 +824,7 @@ export default function ChatAssistant({
                 px: 2,
                 py: 1.6,
                 background:
-                  "linear-gradient(135deg, #061b4d, #0d47a1)",
+                  "linear-gradient(135deg, var(--dark-oringe))",
                 color: "white",
                 display: "flex",
                 justifyContent: "space-between",

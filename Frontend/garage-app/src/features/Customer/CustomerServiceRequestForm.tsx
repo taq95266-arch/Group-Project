@@ -1,16 +1,9 @@
 import { useState } from "react";
-
-import {
-  Box,
-  Button,
-  Paper,
-  TextField,
-  Typography,
-} from "@mui/material";
-
+import {Box, Button,Paper,TextField,Typography,} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-
 import agent from "../../app/api/agent";
+import LocationPicker from "../Common/LocationPicker";
+import { toast } from "react-toastify";
 
 interface Props {
   garageOptionId: number;
@@ -27,54 +20,34 @@ export default function CustomerServiceRequestForm({
   const [carMakeModel, setCarMakeModel] = useState("");
   const [carPlateNumber, setCarPlateNumber] = useState("");
 
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (
-    event: React.FormEvent
-  ) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
 
     if (
-      !guestName ||
-      !guestEmail ||
-      !guestPhone ||
-      !carMakeModel ||
-      !carPlateNumber
+      !guestName.trim() ||
+      !guestEmail.trim() ||
+      !guestPhone.trim() ||
+      !carMakeModel.trim() ||
+      !carPlateNumber.trim()
     ) {
       setError("Please fill in all fields.");
       return;
     }
 
+    if (latitude === null || longitude === null) {
+      setError("Please select your location on the map.");
+      return;
+    }
+
     try {
       setLoading(true);
-
-      const position = await new Promise<GeolocationPosition>(
-        (resolve, reject) => {
-          if (!navigator.geolocation) {
-            reject(
-              new Error(
-                "Location is not supported by this browser."
-              )
-            );
-            return;
-          }
-
-          navigator.geolocation.getCurrentPosition(
-            resolve,
-            reject,
-            {
-              enableHighAccuracy: true,
-              timeout: 10000,
-              maximumAge: 0,
-            }
-          );
-        }
-      );
-
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
 
       await agent.Customer.createServiceRequest({
         garageOptionId,
@@ -87,37 +60,11 @@ export default function CustomerServiceRequestForm({
         longitude,
       });
 
-      alert(
-        "Service request submitted successfully. You will receive a tracking link by email."
-      );
+       toast.success("Service request submitted successfully. You will receive a tracking link by email.")
 
       onClose();
-    } catch (error) {
-      if (error instanceof GeolocationPositionError) {
-        if (error.code === error.PERMISSION_DENIED) {
-          setError(
-            "Location permission is required to submit the service request."
-          );
-        } else if (
-          error.code === error.POSITION_UNAVAILABLE
-        ) {
-          setError(
-            "Unable to get your current location."
-          );
-        } else if (error.code === error.TIMEOUT) {
-          setError(
-            "Getting your location took too long. Please try again."
-          );
-        } else {
-          setError(
-            "Unable to get your location."
-          );
-        }
-      } else {
-        setError(
-          "Failed to submit service request. Please try again."
-        );
-      }
+    } catch {
+      setError("Failed to submit service request. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -156,20 +103,14 @@ export default function CustomerServiceRequestForm({
         >
           <Typography
             variant="h5"
-            sx={{
-              fontWeight: "bold",
-              color: "#0b1f3a",
-            }}
+            sx={{ fontWeight: "bold", color: "#0b1f3a" }}
           >
             Request Service
           </Typography>
 
           <Button
             onClick={onClose}
-            sx={{
-              minWidth: "auto",
-              color: "#0b1f3a",
-            }}
+            sx={{ minWidth: "auto", color: "#0b1f3a" }}
           >
             <CloseIcon />
           </Button>
@@ -178,77 +119,59 @@ export default function CustomerServiceRequestForm({
         <Box
           component="form"
           onSubmit={handleSubmit}
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
+          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
           <TextField
             label="Full Name"
             value={guestName}
-            onChange={(event) =>
-              setGuestName(event.target.value)
-            }
+            onChange={(e) => setGuestName(e.target.value)}
             fullWidth
+            required
           />
 
           <TextField
             label="Email Address"
             type="email"
             value={guestEmail}
-            onChange={(event) =>
-              setGuestEmail(event.target.value)
-            }
+            onChange={(e) => setGuestEmail(e.target.value)}
             fullWidth
+            required
           />
 
           <TextField
             label="Phone Number"
             value={guestPhone}
-            onChange={(event) =>
-              setGuestPhone(event.target.value)
-            }
+            onChange={(e) => setGuestPhone(e.target.value)}
             fullWidth
+            required
           />
 
           <TextField
             label="Car Make & Model"
             placeholder="Toyota Camry"
             value={carMakeModel}
-            onChange={(event) =>
-              setCarMakeModel(event.target.value)
-            }
+            onChange={(e) => setCarMakeModel(e.target.value)}
             fullWidth
+            required
           />
 
           <TextField
             label="Car Plate Number"
             value={carPlateNumber}
-            onChange={(event) =>
-              setCarPlateNumber(event.target.value)
-            }
+            onChange={(e) => setCarPlateNumber(e.target.value)}
             fullWidth
+            required
           />
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-          >
-            Your current location will be shared with the
-            garage to help the technician find you.
-          </Typography>
-
-          <Typography
-            variant="body2"
-            color="text.secondary"
-          >
-            A tracking link will be sent to your email
-            after a technician is assigned.
-          </Typography>
+          <LocationPicker
+            onLocationSelect={(lat, lng) => {
+              setLatitude(lat);
+              setLongitude(lng);
+            }}
+          />
 
           {error && (
-            <Typography color="error">
+            <Typography color="error" variant="body2">
               {error}
             </Typography>
           )}
@@ -267,13 +190,10 @@ export default function CustomerServiceRequestForm({
               },
             }}
           >
-            {loading
-              ? "Getting your location..."
-              : "Submit Request"}
+            {loading ? "Submitting..." : "Submit Request"}
           </Button>
         </Box>
       </Paper>
     </Box>
   );
 }
-

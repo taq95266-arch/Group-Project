@@ -8,10 +8,20 @@ export interface ServiceCustomerRequest {
   carMakeModel: string;
   carPlateNumber: string;
   appliedPrice: number;
-  status: "PENDING" | "ACCEPTED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+
+status:
+  | "PENDING"
+  | "ACCEPTED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "REJECTED"
+  | "CLOSED";
+    
   createdAt: string;
   latitude: number | null;
   longitude: number | null;
+  rejectionReason:string;
 }
 export interface Technician {
   id: number;

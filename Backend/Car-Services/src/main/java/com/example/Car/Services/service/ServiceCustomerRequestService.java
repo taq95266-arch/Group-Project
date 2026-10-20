@@ -79,11 +79,8 @@ public class ServiceCustomerRequestService {
                 .toList();
     }
 
-    public List<ServiceCustomerRequestResponse> getOwnerRequests(
-            Long ownerId) {
-
-        return serviceCustomerRequestRepository
-                .findByGarageServiceOption_Garage_OwnerIdOrderByCreatedAtDesc(
+    public List<ServiceCustomerRequestResponse> getOwnerRequests(Long ownerId) {
+        return serviceCustomerRequestRepository.findByGarageServiceOption_Garage_OwnerIdOrderByCreatedAtDesc(
                         ownerId
                 )
                 .stream()
@@ -102,43 +99,55 @@ public class ServiceCustomerRequestService {
         return toResponse(serviceRequest);
     }
 
+
+
     @Transactional
-    public ServiceCustomerRequestResponse acceptRequest(
-            Long id,
-            Long ownerId) {
+    public ServiceCustomerRequestResponse acceptRequest(Long id, Long ownerId) {
 
-        ServiceCustomerRequest serviceRequest =
-                serviceCustomerRequestRepository.findById(id)
-                        .orElseThrow(() ->
-                                new BadRequestException(
-                                        "Service request not found"));
+        ServiceCustomerRequest serviceRequest = serviceCustomerRequestRepository.findById(id)
+                         .orElseThrow(() -> new BadRequestException("Service request not found"));
 
-        if (!serviceRequest
-                .getGarageServiceOption()
-                .getGarage()
-                .getOwnerId()
-                .equals(ownerId)) {
+                  if (!serviceRequest.getGarageServiceOption()
+                    .getGarage().getOwnerId().equals(ownerId)) {
+                     throw new BadRequestException("You are not allowed to accept this request");
+                  }
 
-            throw new BadRequestException(
-                    "You are not allowed to accept this request");
+           if (serviceRequest.getStatus() != ServiceRequestStatus.PENDING) {
+            throw new BadRequestException("Only pending requests can be accepted");}
+
+              serviceRequest.setStatus(ServiceRequestStatus.ACCEPTED);
+
+               ServiceCustomerRequest saved = serviceCustomerRequestRepository.save(serviceRequest);
+               return toResponse(saved);
+           }
+
+
+    @Transactional
+    public ServiceCustomerRequestResponse  rejectRequest(Long id, Long ownerId, String rejectionReason) {
+
+        ServiceCustomerRequest serviceRequest = serviceCustomerRequestRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Service request not found"));
+
+        if (!serviceRequest.getGarageServiceOption()
+                .getGarage().getOwnerId().equals(ownerId)) {
+            throw new BadRequestException("You are not allowed to reject  this request");
         }
 
-        if (serviceRequest.getStatus()
-                != ServiceRequestStatus.PENDING) {
 
-            throw new BadRequestException(
-                    "Only pending requests can be accepted");
+        if(rejectionReason == null || rejectionReason.isBlank()){
+            throw new BadRequestException("Rejection reason is required");
         }
 
-        serviceRequest.setStatus(
-                ServiceRequestStatus.ACCEPTED
-        );
+        serviceRequest.setStatus(ServiceRequestStatus.REJECTED);
+        serviceRequest.setRejectionReason(rejectionReason.trim());
 
-        ServiceCustomerRequest saved =
-                serviceCustomerRequestRepository.save(serviceRequest);
-
+        ServiceCustomerRequest saved = serviceCustomerRequestRepository.save(serviceRequest);
         return toResponse(saved);
     }
+
+
+
+
 
     public ServiceCustomerRequestResponse update(
             Long id,
@@ -204,6 +213,7 @@ public class ServiceCustomerRequestService {
                 serviceRequest.getCarPlateNumber(),
                 serviceRequest.getAppliedPrice(),
                 serviceRequest.getStatus(),
+                serviceRequest.getRejectionReason(),
                 serviceRequest.getCreatedAt(),
                 serviceRequest.getLatitude(),
                 serviceRequest.getLongitude()

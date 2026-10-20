@@ -194,7 +194,10 @@
   "ServiceOptions":"Service Options",
   "ManageGarageServices" : "Manage the services and prices available in your garage",
   "menu.GarageAddServicePrice": "Add Service Price",
-  "menu.ownerServiceCustomerRequest": "Service Requests"
+  "menu.ownerServiceCustomerRequest": "Service Requests",
+  "menu.Task" :"My Task",
+  "home.uptitle":" Your Car. Our Priority"
+
 
 
 

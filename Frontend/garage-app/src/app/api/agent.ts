@@ -1,4 +1,4 @@
-import axios, { type AxiosResponse } from "axios";
+import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
 
 import type { ChangePasswordRequest,AdminUser, EmailValidationResponse,LoginRequest,LoginResponse, ResetPasswordRequest, UserRequest,} from "../models/User";
 
@@ -16,6 +16,9 @@ import type { CustomerGarage } from "../models/CustomerGarage";
 import type { ServiceCustomerRequest } from "../models/ServiceCustomerRequest";
 import type { CustomerTrackingResponse } from "../models/CustomerTrackingResponse";
 import type { TechnicianAssignment } from "../models/TechnicianAssignment";
+import type { RepairPhoto } from "../models/RepairPhoto";
+import type { OwnerTechnicianAssignment } from "../models/OwnerTechnicianAssignment";
+import type { OwnerRepairPhoto } from "../models/OwnerRepairPhoto";
 
 axios.defaults.baseURL = "http://localhost:8080/api/";
 axios.defaults.withCredentials = false;
@@ -56,15 +59,36 @@ axios.interceptors.response.use(
   }
 );
 
+
 const body = <T>(response: AxiosResponse<T>) => response.data;
 
 const requests = {
-  get: <T>(url: string, params?: Record<string, unknown>) =>axios.get<T>(url, { params }).then(body),
-  post: <T>(url: string, data?: object) =>axios.post<T>(url, data).then(body),
-  put: <T>(url: string, data?: object) =>axios.put<T>(url, data).then(body),
-  patch: <T>(url: string, data?: object) =>axios.patch<T>(url, data).then(body),
-  delete: <T = void>(url: string) =>axios.delete<T>(url).then(body),
-  postForm: <T>(url: string, data: FormData) =>axios.post<T>(url, data).then(body),
+  get: <T,>(
+    url: string,
+    params?: Record<string, unknown>,
+    config?: AxiosRequestConfig
+  ) =>
+    axios
+      .get<T>(url, {
+        ...config,
+        params,
+      })
+      .then(body),
+
+  post: <T,>(url: string, data?: object) =>
+    axios.post<T>(url, data).then(body),
+
+  put: <T,>(url: string, data?: object) =>
+    axios.put<T>(url, data).then(body),
+
+  patch: <T,>(url: string, data?: object) =>
+    axios.patch<T>(url, data).then(body),
+
+  delete: <T = void,>(url: string) =>
+    axios.delete<T>(url).then(body),
+
+  postForm: <T,>(url: string, data: FormData) =>
+    axios.post<T>(url, data).then(body),
 };
 
 const Account = {
@@ -244,6 +268,38 @@ const Assignments = {
   getMyAssignments: () =>requests.get<TechnicianAssignment[]>("technician/assignments"),
 
   updateLocation: (assignmentId: number,values: LocationUpdateRequest) =>requests.post<MessageResponse>(`assignments/${assignmentId}/location`,values),
+
+updateStatus: (
+  assignmentId: number,
+  status: string
+) =>
+  requests.put<MessageResponse>(
+    `assignments/${assignmentId}/status?status=${status}`
+  ),
+
+
+   uploadRepairPhoto: (requestId: number,photoType: "BEFORE" | "DURING" | "AFTER",file: File) => {
+    const formData = new FormData();
+    formData.append("photoType", photoType);
+    formData.append("file", file);
+    return requests.post<RepairPhoto>(
+      `technician/requests/${requestId}/photos`,
+      formData
+    );
+  },
+
+  getRepairPhotos: (requestId: number) =>requests.get<RepairPhoto[]>(`technician/requests/${requestId}/photos`
+    ),
+
+
+getRepairPhotoImage: (requestId: number, photoId: number) =>
+  requests.get<Blob>(
+    `technician/requests/${requestId}/photos/${photoId}/image`,
+    undefined,
+    {
+      responseType: "blob",
+    }
+  ),
 };
 
 const GarageServiceOptions = {
@@ -281,10 +337,7 @@ const Customer = { createServiceRequest: (values: { garageOptionId: number;
     carPlateNumber: string;
     latitude: number;
     longitude: number;}) =>
-    requests.post(
-      "customer/service-request",
-      values
-    ),
+    requests.post("customer/service-request",values),
 };
 
 
@@ -292,8 +345,29 @@ const ServiceRequests =
 {
    getOwnerRequests: () => requests.get<ServiceCustomerRequest[]>( "customer/service-request/owner" ), 
    acceptRequest: (requestId: number) => requests.put<ServiceCustomerRequest>( `customer/service-request/owner/${requestId}/accept` ), 
+   rejectRequest: (requestId: number,rejectionReason : string) => requests.put<ServiceCustomerRequest>( `customer/service-request/owner/${requestId}/reject`,{rejectionReason} ), 
    getTechnicians: (garageId: number) => requests.get<Technician[]>( `owner/garages/${garageId}/technicians` ), 
    assignTechnician: (requestId: number, technicianId: number) => requests.post( "owner/assignments", { requestId, technicianId, } ), };
+
+
+
+
+const OwnerAssignments = {
+  getAssignments: () =>
+    requests.get<OwnerTechnicianAssignment[]>("owner/assignments"),
+
+  getRepairPhotos: (requestId: number) =>
+    requests.get<OwnerRepairPhoto[]>(
+      `owner/requests/${requestId}/photos`
+    ),
+
+  getRepairPhotoImage: (requestId: number, photoId: number) =>
+    requests.get<Blob>(
+      `owner/requests/${requestId}/photos/${photoId}/image`,
+      undefined,
+      { responseType: "blob" }
+    ),
+};
 
 
 const Tracking = {
@@ -317,6 +391,7 @@ const agent = {
   AdminSubscriptionPlans,
   GarageServiceOptions,
   Customer,
+  OwnerAssignments,
   ServiceRequests,
   Tracking
 };

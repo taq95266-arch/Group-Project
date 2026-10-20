@@ -28,7 +28,7 @@ export const paths = {
   paymentCancel: "/owner/garages/payment-cancel",
   ownerServiceOptions: "/owner/garages/services",
   ownerServiceCustomerRequest: "/owner/garages/serviceRequests",
-
+  ownerTechnicianTasks: "/owner/technician-tasks",
 
   ownerTechnicians: (garageId: number | string) => `/owner/garages/${garageId}/technicians`,
 

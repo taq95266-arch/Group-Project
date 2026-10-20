@@ -21,4 +21,7 @@ public interface TechnicianAssignmentRepository extends JpaRepository<Technician
 
     List<TechnicianAssignment> findByTechnician_User_Id(Long userId);
 
+    List<TechnicianAssignment> findByServiceRequest_GarageServiceOption_Garage_OwnerIdOrderByAssignedAtDesc(Long ownerId);
+
+
 }

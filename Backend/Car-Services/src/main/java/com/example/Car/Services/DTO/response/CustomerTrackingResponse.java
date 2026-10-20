@@ -25,5 +25,8 @@ public class CustomerTrackingResponse {
 
     private BigDecimal latitude;
     private BigDecimal longitude;
+
+    
+
 }
 

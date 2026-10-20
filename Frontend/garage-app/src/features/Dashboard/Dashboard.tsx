@@ -30,7 +30,6 @@ import { menuForRole } from "./menu";
 
 const drawerWidth = 250;
 
-/** Shared shell for every authenticated area (drawer + header). The menu depends on the role. */
 export default function Dashboard() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -57,8 +56,8 @@ export default function Dashboard() {
 
   const drawerContent = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <Box sx={{ height: 70, display: "flex", alignItems: "center", px: 3, bgcolor: "#192230" }}>
-        <Typography variant="h6" sx={{ color: "#ffcd00", fontWeight: "bold" }}>
+      <Box sx={{ height: 70, display: "flex", alignItems: "center", px: 3, bgcolor: "var(--navy-color)" }}>
+        <Typography variant="h6" sx={{ color: "var(--ice-white)", fontWeight: "bold" }}>
           {t("app.name")}
         </Typography>
       </Box>
@@ -143,7 +142,7 @@ export default function Dashboard() {
               </IconButton>
             )}
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold" }} noWrap>
+              <Typography variant="h6" sx={{ fontWeight: "bold",color:"black" }} noWrap>
                 {current ? t(current.labelKey) : t("menu.dashboard")}
               </Typography>
               <Typography variant="body2" color="text.secondary" noWrap>

@@ -34,9 +34,12 @@ public class ServiceCustomerRequestResponse {
 
     private ServiceRequestStatus status;
 
+    private String rejectionReason;
+
     private LocalDateTime createdAt;
 
     private BigDecimal latitude;
 
     private BigDecimal longitude;
+
 }

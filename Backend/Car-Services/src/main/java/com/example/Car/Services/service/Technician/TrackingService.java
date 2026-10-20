@@ -19,35 +19,16 @@ public class TrackingService {
     @Transactional(readOnly = true)
     public CustomerTrackingResponse getTracking(String trackingToken) {
 
-        ServiceCustomerRequest request =
-                serviceCustomerRequestRepository
-                        .findByTrackingToken(trackingToken)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Tracking request not found"
-                                )
-                        );
+        ServiceCustomerRequest request = serviceCustomerRequestRepository.findByTrackingToken(trackingToken)
+          .orElseThrow(() -> new RuntimeException("Tracking request not found"));
 
-        TechnicianAssignment assignment =
-                technicianAssignmentRepository
-                        .findFirstByServiceRequest_RequestIdOrderByAssignedAtDesc(
-                                request.getRequestId()
-                        )
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Technician assignment not found"
-                                )
-                        );
+        TechnicianAssignment assignment = technicianAssignmentRepository
+                .findFirstByServiceRequest_RequestIdOrderByAssignedAtDesc(
+                 request.getRequestId()).orElseThrow(() -> new RuntimeException("Technician assignment not found"));
 
-        String garageName =
-                request.getGarageServiceOption()
-                        .getGarage()
-                        .getName();
+        String garageName = request.getGarageServiceOption().getGarage().getName();
 
-        String technicianName =
-                assignment.getTechnician()
-                        .getUser()
-                        .getFullName();
+        String technicianName = assignment.getTechnician().getUser().getFullName();
 
         return new CustomerTrackingResponse(
                 request.getRequestId(),
